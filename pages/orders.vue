@@ -164,7 +164,7 @@ const menuItems = [
   { name: "Cupon", path: "/cupon", icon: "BarChart" },
   { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
   { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
-  { name: "Payment", path: "/payment", icon: "BarChart" },
+  { name: "Billing", path: "/billing", icon: "BarChart" },
 ];
 
 // Reactive search query
