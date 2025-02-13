@@ -18,7 +18,7 @@
           </h2>
           <form @submit.prevent="handleLogin" class="space-y-4">
             <div>
-              <input v-model="email" type="email" id="email" placeholder="Email address" required
+              <input v-model="phone" type="text" id="phone" placeholder="Phone Number" required 
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-300"
                 :disabled="AuthStore.isLoading" />
             </div>
@@ -87,15 +87,28 @@ import { useAuthStore } from '@/store/modules/auth'
 
 
 
-const email = ref('mehidy.gb@gmail.com')
+const phone = ref('')
 const password = ref('12345678')
-const error = ref(null)
+const error = ref<string | null>(null)
 const AuthStore = useAuthStore()
 const router = useRouter()
 
+
 const handleLogin = async () => {
-  await router.push('/dashboard') // Using named route
+  try {
+    // Call the login action from the store
+    await AuthStore.login({ phone: String(phone.value), password: password.value })
+  
+
+    // After successful login, navigate to the dashboard
+    await router.push('/dashboard')
+  } catch (err) {
+    error.value = 'Login failed'
+    console.error('Error logging in:', err)
+  }
 }
+
+
 
 
 
@@ -103,10 +116,18 @@ const handleGoogleLogin = () => {
   console.log('Google login clicked')
 }
 
+
 const handleFacebookLogin = () => {
   console.log('Facebook login clicked')
 }
+
+
 </script>
+
+
+
+
+
 
 <style scoped>
 body {

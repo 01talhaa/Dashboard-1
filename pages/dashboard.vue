@@ -149,6 +149,11 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Chart from "chart.js/auto";
 import { useStateStore } from '@/stores/useDataStore';
+/*
+definePageMeta({
+  middleware: 'auth'
+})
+*/
 
 const router = useRouter();
 

@@ -86,9 +86,6 @@
   <button @click="submitCooldown" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400">
     Submit
   </button>
-  <button @click="resetInputs" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400">
-    Reset
-  </button>
 </div>
 
 
@@ -169,20 +166,10 @@
                 <div class="absolute top-0 left-1/2 transform -translate-x-1/2 bg-[#FFD700] w-2 h-8"></div>
               </div>
 
-              <!-- Spin Button and Result Boxes -->
-              <div class="w-full max-w-xs mt-4 flex flex-col items-center">
-                <!-- Spin Button -->
-                <button 
-                  @click="spin" 
-                  class="bg-yellow-500 text-black px-4 py-2 rounded disabled:bg-gray-400 hover:bg-yellow-400 relative z-10" 
-                  :disabled="spinsLeft === 0 || !canSpin"
-                >
-                  Spin 
-                </button>
-              </div>
+             
               <div v-if="selectedItem" class="mt-4 text-lg font-bold text-yellow-300">
                <!-- You won: {{ selectedItem }}-->
-               You won: {{ selectedRotationIndex+1 }}
+               You won: {{ items[selectedRotationIndex] }}
               </div>
             </div>
           </div>
@@ -255,7 +242,7 @@ const saveItemName = () => {
     items.value[selectedItemIndex.value] = newItemName.value;
     // Save updated items to localStorage
     localStorage.setItem("items", JSON.stringify(items.value));
-    saveToServer();
+    sendItemsToServer();
     closeModal();
   }
 
@@ -275,6 +262,18 @@ const COOLDOWN_KEY = "cooldown_duration";
 
 
 
+const lastSpinData = ref({
+  id: "user_id", // Replace with actual user/shop ID
+  rotation_pointer: null,
+  spin_time: null,
+  spin_time_left: null,
+  created_at: null, // Timestamp when the spin is created
+});
+
+
+
+
+
 // State Variables
 const cooldownHours = ref(0);
 const cooldownMinutes = ref(0);
@@ -289,11 +288,16 @@ const shop = ref({ name: "", logo: "" });
 
 
 
-const submitCooldown = () => {
+const submitCooldown = async () => {
+  location.reload();  
   if (cooldownActive.value) return; // Prevent submitting while cooldown is active
+   
 
+  
   if (!cooldownTime.value) {
     console.error("No cooldown time selected");
+    
+
     return;
   }
 
@@ -318,6 +322,19 @@ const submitCooldown = () => {
   
   // Start countdown using the stored cooldown end time
   startCountdown(cooldownEndTime - Date.now());
+
+
+
+    // Store `spin_time_left` before sending request
+  lastSpinData.value.spin_time_left = countdown.value;
+
+try {
+  const response = await axios.post('', lastSpinData.value);
+  console.log("Spin & cooldown data sent successfully:", response.data);
+} catch (error) {
+  console.error("Error sending spin & cooldown data:", error);
+}
+
 };
 
 
@@ -325,6 +342,8 @@ const submitCooldown = () => {
 
 
 onMounted(() => {
+
+  console.log('Full api:', import.meta.env.VITE_API_BASE_URL); 
   const savedShop = localStorage.getItem("shopData");
   if (savedShop) {
     shop.value = JSON.parse(savedShop);
@@ -354,7 +373,7 @@ if (cooldownEndTime) {
   } else {
     canSpin.value = true;
     cooldownActive.value = false;
-    countdown.value = "Ready to Spin!";
+    countdown.value = "";
   }
 }
 
@@ -362,7 +381,7 @@ if (cooldownEndTime) {
 });
 
 // Items for Spin Wheel
-const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
+//const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
 const rotation = ref(0);
 const spinning = ref(false);
 const selectedItem = ref(null);
@@ -406,7 +425,7 @@ const checkSpinAvailability = () => {
   } else {
     canSpin.value = true;
     cooldownActive.value = false; // Re-enables cooldown input
-    countdown.value = "Ready to Spin!";
+   // countdown.value = "Ready to Spin!";
   }
 };
 
@@ -434,7 +453,8 @@ const startCountdown = (timeLeftMs) => {
       clearInterval(interval);
       canSpin.value = true;
       cooldownActive.value = false;
-      countdown.value = "Ready to Spin!";
+      countdown.value = "Select Cooldown Value";
+      spin();
     } else {
       const hours = Math.floor(remainingTime / (1000 * 60 * 60));
       const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
@@ -484,6 +504,13 @@ const spin = () => {
   spinning.value = true;
   const randomSpin = Math.floor(1800 + Math.random() * 1800);
   rotation.value =selectedRotation.value;
+  const spinTime = Date.now(); 
+   // Store spin data for later submission
+  lastSpinData.value.rotation_pointer = randomIndex;
+  lastSpinData.value.spin_time = spinTime;
+  lastSpinData.value.created_at = new Date().toISOString(); // Store created_at timestamp
+
+
 
   setTimeout(() => {
     spinning.value = false;
@@ -498,33 +525,75 @@ const spin = () => {
     //checkSpinAvailability();
   }, 3000);
 
-  countdown.value="press submit button";
+  countdown.value="Select Cooldown Value";
 };
 
 // Submit Cooldown Time
 
 
-const saveToServer = async () => {
-  try {
-    const response = await axios.post('/your-api-endpoint', {
-      items: items.value,  // Send the array from localStorage
-    });
-    console.log('Items saved successfully:', response.data);
-  } catch (error) {
-    console.error('Error saving items:', error);
+
+
+
+
+
+/*
+const sendItemsToServer = async () => {
+  const storedItems = localStorage.getItem("items");
+
+  if (storedItems) {
+    const items = JSON.parse(storedItems);
+
+    const config = useRuntimeConfig();
+    const apiUrl = config.API_BASE_URL;
+
+    try {
+      const response = await axios.post(`${apiUrl}/luckyspin`, {
+        items: items, // Send the array in the request body
+      });
+      
+      console.log('Items sent successfully:', response.data);
+      console.log('Full response:', response); // Inspect the full response including headers and body
+    } catch (error) {
+      console.error('Error sending items:', error);
+    }
+  } else {
+    console.log('No items found in localStorage');
   }
 };
 
+*/
 
+const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
 
+const sendItemsToServer = async () => {
+  
+  try {
+    // Get the token from localStorage (after successful login)
+    const token = localStorage.getItem('token');  // Retrieve the token from localStorage
+    console.log('token:', token);
+    // Check if the token exists
+    if (!token) {
+      console.error('No token found! Please log in first.');
+      return; // Stop the function if there's no token
+    }
 
+    // Send the request with the token
+    const response = await axios.patch(
+      `${import.meta.env.VITE_API_BASE_URL}/spinner-items`, 
+      { items: items.value },  // Send the array in the request body
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Set the Authorization header with the token
+        }
+      }
+    );
 
+    console.log('Items sent successfully:', response.data); // Log the success message
 
-
-
-
-
-
+  } catch (error) {
+    console.error('Error sending items:', error); // Log the error if any
+  }
+};
 
 
 </script>
