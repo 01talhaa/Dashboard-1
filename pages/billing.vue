@@ -158,12 +158,22 @@ onMounted(() => {
   if (savedShop) {
     shop.value = JSON.parse(savedShop); // Populate shop data from localStorage
   }
-  shopUrl.value = window.location.origin + "/shop"; // Adjust shop page link
+  shopUrl.value = window.location.origin + "/shop"; 
 });
 
+// Accessing Environment Variables
+const baseUrl = import.meta.env.VITE_API_BASE_URL;  // API base URL from .env
+const spinTimestampKey = import.meta.env.SPIN_TIMESTAMP_KEY;  // Example
+const cooldownDurationKey = import.meta.env.COOLDOWN_DURATION_KEY; // Example
+const appName = import.meta.env.APP_NAME; // Example
+const appVersion = import.meta.env.APP_VERSION;   // Example
+
+
+console.log("API Base URL:", baseUrl);  // Verify the base URL
+console.log("App Name:", appName);       // Verify other env variables
 
 // API Configuration
-const baseUrl = "https://dev.apexdrive365.com/api"; // Replace with your actual base URL
+
 const authToken = ref(""); // Store the authentication token
 
 // State variables
@@ -325,6 +335,7 @@ const updateStatus = async (customer) => {
   }
 };
 
+// Show toast message
 const showToastMessage = (message, status) => {
   toastMessage.value = message;
   toastStatus.value = status;
@@ -601,3 +612,4 @@ select {
   }
 }
 </style>
+
