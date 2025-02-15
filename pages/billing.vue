@@ -115,8 +115,10 @@
                   <thead>
                     <tr class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       <th class="px-6 py-3">ID</th>
+                      <th class="px-6 py-3">Name</th>
                       <th class="px-6 py-3">Phone</th>
                       <th class="px-6 py-3">Amount</th>
+                      <th class="px-6 py-3">Method</th>
                       <th class="px-6 py-3">Status</th>
                       <th class="px-6 py-3">Actions</th>
                     </tr>
@@ -126,9 +128,13 @@
                     <tr v-for="customer in paginatedCustomers" :key="customer.id" 
                       class="hover:bg-gray-50 transition-colors duration-150 customer-row">
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.id }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.phone }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.user.name }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.user.phone }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                        ${{ formatBalance(customer.balance) }}
+                        {{ (customer.amount) }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {{ (customer.payment_method) }}
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span :class="[
@@ -144,6 +150,7 @@
                         <select 
                           v-model="customer.status" 
                           @change="updateStatus(customer)"
+                          :disabled="customer.status === 'paid'"
                           class="px-3 py-1.5 text-sm rounded-md border border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                         >
                           <option value="due">Due</option>
@@ -317,7 +324,7 @@ const fetchCustomers = async () => {
   try {
     // Log request details
     debugInfo.value = {
-      url: 'https://apexdrive365.com/api/users',
+      url: 'https://apexdrive365.com/api/withdraws',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -325,7 +332,7 @@ const fetchCustomers = async () => {
       }
     };
 
-    const response = await fetch('https://apexdrive365.com/api/users', {
+    const response = await fetch('https://apexdrive365.com/api/withdraws', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -350,10 +357,11 @@ const fetchCustomers = async () => {
       responseData: data
     };
 
-    if (data.success && data.data && data.data.result) {
+    if (data.success) {
       customers.value = data.data.result.map(customer => ({
         ...customer,
-        status: customer.status || (parseFloat(customer.balance) > 0 ? 'due' : 'paid')
+        // status: customer.status || (parseFloat(customer.balance) > 0 ? 'due' : 'paid')
+        status: customer.status,
       }));
       totalPages.value = Math.ceil(customers.value.length / itemsPerPage.value);
       currentPage.value = 1; // Reset to first page when new data is loaded
@@ -391,26 +399,23 @@ const showToastMessage = (message, status) => {
 };
 
 // Update customer status (client-side only since the API endpoint doesn't exist)
-const updateStatus = (customer) => {
-  // Simply show the toast with the new status
+const updateStatus = async (customer) => {
+
+  const response = await fetch(`https://apexdrive365.com/api/withdraws/${customer.id}/approve`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      }
+    });
+    // if (!response.status) {
+    //   throw new Error(response.message, 'false');
+    // } else {
+    //   showToastMessage(response.message, 'success');
+    // }
+
   showToastMessage(`Status updated to ${customer.status}`, customer.status);
-  
-  // In a real application, this is where we would call the API
-  console.log(`Status updated (client-side only): User ${customer.id} is now ${customer.status}`);
-  
-  // If we had local storage persistence, we could save it here
-  try {
-    // Get existing saved statuses or initialize empty object
-    const savedStatuses = JSON.parse(localStorage.getItem('customerStatuses') || '{}');
-    
-    // Update this customer's status
-    savedStatuses[customer.id] = customer.status;
-    
-    // Save back to localStorage
-    localStorage.setItem('customerStatuses', JSON.stringify(savedStatuses));
-  } catch (e) {
-    console.error('Could not save status to localStorage:', e);
-  }
 };
 
 // Lifecycle

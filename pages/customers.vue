@@ -61,16 +61,23 @@
         <div class="container mx-auto p-6">
           <h1 class="text-3xl font-semibold mb-6">Customers - Active eCommerce CMS</h1>
 
-          <!-- Search Bar -->
-          <div class="mb-6">
-            <input
-              type="text"
-              v-model="customerSearchQuery"
-              @input="searchCustomers"
-              class="p-2 w-full border rounded-md"
-              placeholder="Type name or phone and press Enter"
-            />
+          <div class="flex justify-between items-center mb-4">
+            <!-- Search Bar -->
+            <div class="mb-6 w-1/2">
+              <input
+                type="text"
+                v-model="customerSearchQuery"
+                @input="searchCustomers"
+                class="p-2 w-full border rounded-md"
+                placeholder="Type name or phone and press Enter"
+              />
+            </div>
+            <!-- Create Customer Button -->
+            <button @click="openCreateModal" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">
+              Create Customer
+            </button>
           </div>
+
 
           <!-- Customer Table -->
           <div class="overflow-x-auto bg-white rounded-lg shadow-md" v-if="!loading && !error && customers.length > 0">
@@ -82,7 +89,7 @@
                 <th class="px-4 py-2">NID</th>
                 <th class="px-4 py-2">Address</th>
                 <th class="px-4 py-2">Wallet Balance</th>
-
+                <th class="px-4 py-2">Actions</th>
               </tr>
               </thead>
               <tbody>
@@ -92,8 +99,12 @@
                 <td class="px-4 py-2">{{ customer.phone }}</td>
                 <td class="px-4 py-2">{{ customer.nid }}</td>
                 <td class="px-4 py-2">{{ customer.address }}</td>
-                <td class="px-4 py-2">{{ formatCurrency(customer.walletBalance) }}</td>
-
+                <td class="px-4 py-2">{{ (customer.balance) }}</td>
+                <td class="px-4 py-2">
+                  <button @click="openEditModal(customer)" class="text-blue-500 hover:text-blue-700">
+                    Edit
+                  </button>
+                </td>
               </tr>
               </tbody>
             </table>
@@ -129,6 +140,52 @@
         </div>
 
       </main>
+
+      <!-- Create/Edit Customer Modal -->
+      <div v-if="showModal" class="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-md shadow-md w-96">
+          <h2 class="text-2xl font-semibold mb-4">{{ editingCustomer ? 'Edit Customer' : 'Create Customer' }}</h2>
+
+          <div class="mb-4">
+            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+            <input type="text" id="name" v-model="modalCustomer.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Phone:</label>
+            <input type="text" id="phone" v-model="modalCustomer.phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label for="nid" class="block text-gray-700 text-sm font-bold mb-2">NID:</label>
+            <input type="text" id="nid" v-model="modalCustomer.nid" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Address:</label>
+            <input type="text" id="address" v-model="modalCustomer.address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role:</label>
+            <select
+              id="role"
+              v-model="modalCustomer.role"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="customer">Customer</option>
+              <!-- <option value="user">User</option>
+              <option value="admin">Admin</option> -->
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="walletBalance" class="block text-gray-700 text-sm font-bold mb-2">Wallet Balance:</label>
+            <input type="number" id="walletBalance" v-model="modalCustomer.walletBalance" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+
+
+          <div class="flex justify-end">
+            <button @click="closeModal" class="bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 mr-2">Cancel</button>
+            <button @click="saveCustomer" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700">Save</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -172,6 +229,19 @@ const error = ref(null);
 
 // Reactive search query for customers
 const customerSearchQuery = ref('');
+
+// Modal state
+const showModal = ref(false);
+const editingCustomer = ref(null);
+const modalCustomer = ref({
+  name: '',
+  phone: '',
+  nid: '',
+  address: '',
+  walletBalance: 0,
+  role: 'customer' // Add default role
+});
+
 
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
@@ -219,8 +289,8 @@ const filteredCustomers = computed(() => {
   const searchTerm = customerSearchQuery.value.toLowerCase();
   return customers.value.filter(customer => {
     const name = customer.name ? customer.name.toLowerCase() : '';
-    const phone = customer.phone ? customer.phone.toLowerCase() : ''; // Added phone
-    return name.includes(searchTerm) || phone.includes(searchTerm); // Searching against phone too
+    const phone = customer.phone ? customer.phone.toLowerCase() : ''; 
+    return name.includes(searchTerm) || phone.includes(searchTerm); 
   });
 });
 
@@ -252,15 +322,120 @@ const formatCurrency = (value) => {
   return `$${value ? value.toFixed(2) : '0.00'}`
 }
 
-// View customer details (this is just for example purposes)
-const viewCustomer = (customer) => {
-  console.log('Viewing customer:', customer)
-}
-
 // Search functionality
 const searchCustomers = () => {
-  // Triggered on input change in the search box
+  
 }
+
+// Update the openCreateModal function
+const openCreateModal = () => {
+  editingCustomer.value = null;
+  modalCustomer.value = {
+    name: '',
+    phone: '',
+    nid: '',
+    address: '',
+    walletBalance: 0,
+    role: 'customer' 
+  };
+  showModal.value = true;
+};
+
+
+const openEditModal = (customer) => {
+  editingCustomer.value = customer;
+  modalCustomer.value = {
+    name: customer.name || '',
+    phone: customer.phone || '', // Don't modify the phone number on load
+    nid: customer.nid || '',
+    address: customer.address || '',
+    walletBalance: customer.balance || 0,
+    role: customer.role || 'customer'
+  };
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  editingCustomer.value = null;
+  modalCustomer.value = {
+    name: '',
+    phone: '',
+    nid: '',
+    address: '',
+    walletBalance: 0,
+    role: 'customer'
+  };
+};
+
+
+// Update the saveCustomer function
+const saveCustomer = async () => {
+  loading.value = true;
+  try {
+    const apiUrl = editingCustomer.value
+      ? `https://apexdrive365.com/api/users/${editingCustomer.value.id}`
+      : 'https://apexdrive365.com/api/users';
+
+    let formattedPhone = modalCustomer.value.phone || '';
+    formattedPhone = formattedPhone.replace(/[^\d+]/g, '');
+
+    if (!formattedPhone.startsWith('+')) {
+      formattedPhone = '+' + formattedPhone;
+    }
+
+    const requestBody = {
+      name: modalCustomer.value.name?.trim() || '',
+      phone: formattedPhone,
+      nid: modalCustomer.value.nid?.trim() || '',
+      address: modalCustomer.value.address?.trim() || '',
+      balance: modalCustomer.value.walletBalance?.toString() || '0',
+      role: modalCustomer.value.role || 'customer'
+    };
+
+    if (!editingCustomer.value) {
+      // Only add password fields for new users
+      requestBody.password = '12345678';
+      requestBody.password_confirmation = '12345678';
+    }
+
+    const response = await fetch(apiUrl, {
+      method: editingCustomer.value ? 'PATCH' : 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const data = await response.json();
+    console.log('API Response:', data); // Debug log
+
+    if (!response.ok) {
+      if (response.status === 422) {
+        const errorMessage = data.message || Object.values(data.errors || {}).flat().join(', ');
+        throw new Error(`Validation error: ${errorMessage}`);
+      }
+
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
+    }
+
+    if (data.success) {
+      await fetchCustomers();
+      closeModal();
+      alert('Customer saved successfully');
+    } else {
+      throw new Error(data.message || 'Failed to save customer');
+    }
+  } catch (e) {
+    error.value = e.message;
+    console.error('Error saving customer:', e);
+    alert(e.message);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -268,7 +443,8 @@ const searchCustomers = () => {
   max-width: 1200px;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="number"] {
   padding: 0.5rem;
   width: 100%;
   border: 1px solid #ccc;
@@ -300,5 +476,21 @@ tr.bg-red-100 {
 
 tr.bg-yellow-100 {
   background-color: #fef9c3;
+}
+
+/* Add to your existing <style> section */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  border-color: #3b82f6;
 }
 </style>
