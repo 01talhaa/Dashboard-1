@@ -65,10 +65,10 @@
           <div class="mb-6">
             <input
               type="text"
-              v-model="searchQuery"
+              v-model="customerSearchQuery"
               @input="searchCustomers"
               class="p-2 w-full border rounded-md"
-              placeholder="Type email or name and press Enter"
+              placeholder="Type name or phone and press Enter"
             />
           </div>
 
@@ -78,26 +78,22 @@
               <thead>
               <tr class="bg-gray-100 text-left">
                 <th class="px-4 py-2">Name</th>
-                <th class="px-4 py-2">Email Address</th>
                 <th class="px-4 py-2">Phone</th>
-                <th class="px-4 py-2">Package</th>
+                <th class="px-4 py-2">NID</th>
+                <th class="px-4 py-2">Address</th>
                 <th class="px-4 py-2">Wallet Balance</th>
-                <th class="px-4 py-2">Verification Status</th>
-                <th class="px-4 py-2">Options</th>
+
               </tr>
               </thead>
               <tbody>
               <tr v-for="customer in paginatedCustomers" :key="customer.id"
                   :class="{'bg-red-100': customer.status === 'blocked', 'bg-yellow-100': customer.status === 'suspicious'}">
                 <td class="px-4 py-2">{{ customer.name }}</td>
-                <td class="px-4 py-2">{{ customer.email }}</td>
                 <td class="px-4 py-2">{{ customer.phone }}</td>
-                <td class="px-4 py-2">{{ customer.package }}</td>
+                <td class="px-4 py-2">{{ customer.nid }}</td>
+                <td class="px-4 py-2">{{ customer.address }}</td>
                 <td class="px-4 py-2">{{ formatCurrency(customer.walletBalance) }}</td>
-                <td class="px-4 py-2">{{ customer.verificationStatus }}</td>
-                <td class="px-4 py-2">
-                  <button @click="viewCustomer(customer)" class="text-blue-500 hover:text-blue-700">View</button>
-                </td>
+
               </tr>
               </tbody>
             </table>
@@ -223,8 +219,8 @@ const filteredCustomers = computed(() => {
   const searchTerm = customerSearchQuery.value.toLowerCase();
   return customers.value.filter(customer => {
     const name = customer.name ? customer.name.toLowerCase() : '';
-    const email = customer.email ? customer.email.toLowerCase() : '';
-    return name.includes(searchTerm) || email.includes(searchTerm);
+    const phone = customer.phone ? customer.phone.toLowerCase() : ''; // Added phone
+    return name.includes(searchTerm) || phone.includes(searchTerm); // Searching against phone too
   });
 });
 
