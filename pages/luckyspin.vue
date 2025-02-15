@@ -1,626 +1,606 @@
 <template>
   <div class="flex h-screen bg-gray-50">
-    <!-- Sidebar -->
+    <!-- Sidebar (keeping original structure) -->
     <aside class="w-2/5 sm:w-64 bg-gray-900 text-white transition-all duration-300 flex-shrink-0 overflow-auto">
       <div class="p-2 sm:p-4">
         <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
           <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
           <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span
               class="text-red-500">Platform</span></span>
-
-
         </div>
       </div>
 
-      <!-- Search Bar -->
       <div class="px-2 sm:px-4 mt-2 sm:mt-6">
         <input v-model="searchQuery" type="search" placeholder="Search"
           class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
       </div>
 
-      <!-- Menu Items -->
+      
       <nav class="mt-3 sm:mt-6">
         <template v-for="(item, index) in filteredMenuItems" :key="index">
           <router-link :to="item.path"
-            class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-            <component :is="item.icon" class="w-5 h-5" />
-            <span class="ml-3">{{ item.name }}</span>
-          </router-link>
-
-        </template>
-
-      </nav>
-
-
-      <router-link to="/" class=" mx-7 py-80  text-red-500    text-left block">
-        Logout
-      </router-link>
-
-
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 overflow-auto transition-all duration-300">
-      <!-- Header (Sticky at Top, Outside of Main) -->
-      <header class="bg-white border-b sticky top-0 z-10">
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center space-x-4">
-            <!-- Add content if necessary -->
-          </div>
-          <div class="flex items-center space-x-4">
-            <!-- Circle for logo image -->
-            <div class="flex items-center space-x-4">
-              <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
-                <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
-                <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
-              </router-link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Dashboard Content -->
-     
-         <!-- Dashboard Content -->
-    <main class="p-4 mt-0.5">
-      <div class="flex h-screen justify-center items-center bg-gradient-to-b from-red-800 to-red-950">
-      
-          <div class="flex flex-col items-center">
-
-
+          class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
+          <component :is="item.icon" class="w-5 h-5" />
+          <span class="ml-3">{{ item.name }}</span>
+        </router-link>
+        
+        
+      </template>
+    </nav>
     
-   <!-- Set Cooldown Time -->
-<!-- Set Cooldown Time -->
-<div class="mt-4">
-  <label for="cooldownTime" class="block text-lg font-medium">Set Cooldown Time</label>
-  <input
-    type="time"
-    id="cooldownTime"
-    v-model="cooldownTime"
-    class="border rounded p-2 w-full bg-white"
-  />
-</div>
-
-<!-- Submit and Reset Buttons -->
-<div class="flex gap-4 mt-4">
-  <button @click="submitCooldown" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400">
-    Submit
-  </button>
-</div>
-
-
-
-
-    <!-- Countdown Display -->
-    <div class="mt-4">
-      <p class="text-lg font-semibold">{{ countdown }}</p>
-    </div>
-
-         <!-- Spinner Item Box with Click to Edit -->
-         <div class="w-full h-full flex justify-center items-center">
-              <div class="grid grid-cols-4 gap-4">
-                <div
-                  v-for="(item, index) in items"
-                  :key="index"
-                  class="relative flex justify-center items-center p-2 border-2 border-gray-300 rounded-md cursor-pointer hover:bg-gray-200"
-                  @click="openEditModal(index)"
-                >
-                  {{ item }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Modal for Editing Item Names -->
-            <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div class="bg-white p-6 rounded shadow-md max-w-sm w-full">
-                <label for="item-name" class="block text-lg font-medium">Edit Item Name</label>
-                <input id="item-name" v-model="newItemName" class="border rounded p-2 w-full" />
-                <div class="mt-4 flex justify-end gap-4">
-                  <button @click="closeModal" class="bg-gray-300 text-black px-4 py-2 rounded">Cancel</button>
-                  <button @click="saveItemName" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-                </div>
-              </div>
-            </div>
-
-  </div>
-
-     
-
-
-      
-       
+    <router-link to="/" class="mx-7 py-80 text-red-500 text-left block">
+      Logout
+    </router-link>
+  </aside>
   
-
-
-        <div class="min-h-screen bg-gradient-to-b from-red-800 to-red-950 flex flex-col items-center justify-center p-6 relative">
-          
-          <!-- Sparkles effect -->
-          <div class="absolute inset-0 z-0">
-            <div v-for="n in 12" :key="n" 
-                 class="absolute w-1 h-1 bg-yellow-200 rounded-full animate-twinkle"
-                 :style="`top: ${Math.random() * 100}%; left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 2}s`">
-            </div>
-          </div>
-
-          <div class="max-w-2xl w-full space-y-8">
-            <!-- Main section with spinner and results -->
-            <div class="flex flex-col justify-center items-center">
-              <!-- Spin Wheel -->
-              <div class="relative w-80 h-80 flex justify-center items-center">
-                <div
-                  class="w-full h-full border-4 border-gray-300 rounded-full flex justify-center items-center"
-                  :style="{ transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 3s ease-out' : 'none' }"
-                >
-                  <svg viewBox="0 0 100 100" class="absolute w-full h-full">
-                    <g v-for="(item, index) in items" :key="index" :transform="`rotate(${(360 / items.length) * index}, 50, 50)`">
-                      <path
-                        :d="`M50,50 L100,50 A50,50 0 0,1 50,0 Z`"
-                        :fill="index % 2 === 0 ? '#FF0000' : '#FFD700'"
-                        stroke="black"
-                        stroke-width="0.5"
-                      />
-                      <text x="75" y="25" text-anchor="middle" transform="rotate(90, 75, 25)" class="text-xs fill-black">{{ item }}</text>
-                    </g>
-                  </svg>
-                </div>
-                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 bg-[#FFD700] w-2 h-8"></div>
-              </div>
-
-             
-              <div v-if="selectedItem" class="mt-4 text-lg font-bold text-yellow-300">
-               <!-- You won: {{ selectedItem }}-->
-               You won: {{ items[selectedRotationIndex] }}
-              </div>
-            </div>
+  <!-- Main Content -->
+  <div class="flex-1 overflow-auto transition-all duration-300">
+    <!-- Header -->
+    <header class="bg-white border-b sticky top-0 z-10">
+      <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center space-x-4">
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
+            <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
+              <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
+              <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
+            </router-link>
           </div>
         </div>
       </div>
-    </main>
-
+    </header>
+    
+    <!-- Enhanced Main Content -->
+    <main class="p-6 bg-gradient-to-br from-gray-900 to-purple-900 min-h-[calc(100vh-64px)]">
+      <div class="max-w-7xl mx-auto">
+        <!-- Cooldown Section with Multiple Times -->
+        <div class="mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl">
+          <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <span class="mr-2">⏱️</span> Set Cooldown Times
+          </h2>
+          <div class="mb-2">
+            <div v-for="(time, index) in cooldownTimes" :key="index" class="flex items-center mb-2">
+              <input type="time" v-model="cooldownTimes[index]"
+              class="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+              <button @click="removeCooldownTime(index)"
+              class="ml-2 p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-white transition-colors">
+              <span>×</span>
+            </button>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-4 items-center mt-4">
+          <button @click="addCooldownTime"
+          class="px-6 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          + Add Time
+        </button>
+        <button @click="submitCooldownTimes"
+        class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+        Submit All Times
+      </button>
+    </div>
+    <div class="mt-4">
+      <p class="text-xl font-medium text-purple-300">{{ countdown }}</p>
+      <div v-if="nextSpinTime" class="mt-2 text-sm text-purple-300">
+        Next spin at: {{ formatDateTime(nextSpinTime) }}
+      </div>
+      <div v-if="scheduleMessage" class="mt-2 text-sm text-green-300">
+        {{ scheduleMessage }}
+      </div>
+      <div v-if="remainingSpins > 0" class="mt-2 text-sm text-amber-300">
+        {{ remainingSpins }} spins remaining today
+      </div>
     </div>
   </div>
- 
+  
+  
+  
+  
+  <!-- Spinner Section -->
+  
+  
+  <div class="wrap" @click="launchWheel">
+    <FortuneWheel ref="wheel" v-model="gift" :middle-circle="true" :imgParams="logo" :data="data" @done="done" />
+  </div>
+  
+
+
+          <!-- Edit Modal -->
+          <div v-if="isModalOpen"
+            class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
+            <div class="bg-gray-900 p-6 rounded-xl border border-white/20 max-w-sm w-full shadow-2xl">
+              <h3 class="text-xl font-bold text-white mb-4">Edit Item Name</h3>
+              <input v-model="newItemName"
+                class="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+              <div class="mt-6 flex justify-end gap-4">
+                <button @click="closeModal" class="px-4 py-2 text-gray-300 hover:text-white transition-colors">
+                  Cancel
+                </button>
+                <button @click="saveItemName"
+                  class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
 </template>
 
-
-
-
-
-
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { FortuneWheel } from 'vue3-fortune-wheel';
+import type { Data } from 'vue3-fortune-wheel';
 
+// Type definitions
+interface ImgParams {
+  src: string;
+  width: number;
+  height: number;
+}
 
-const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
-    { name: "Products", path: "/products", icon: "Package" },
-    { name: "Orders", path: "/orders", icon: "ShoppingCart" },
-    { name: "Customers", path: "/customers", icon: "Package" },
-    { name: "Reports", path: "/reports", icon: "BarChart" },
-    { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-    { name: "Cupon", path: "/cupon", icon: "BarChart" },
-    { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
-    { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
-    { name: "Billing", path: "/billing", icon: "BarChart" },
+interface MenuItem {
+  name: string;
+  path: string;
+  icon: string;
+  active?: boolean;
+}
 
-  ];
-  
-  // Initialize shop as a reactive object
+// Initialize refs with proper typing
+const gift = ref<number>(4);
+const wheel = ref<InstanceType<typeof FortuneWheel> | null>(null);
+const data = ref<Data[]>([
+  {
+    id: 1,
+    value: "Gift 1",
+    bgColor: "#7d7db3",
+    color: "#ffffff",
+  },
+  {
+    id: 2,
+    value: "Gift 2",
+    bgColor: "#ffffff",
+    color: "#000000",
+  },
+  {
+    id: 3,
+    value: "Gift 3",
+    bgColor: "#c92729",
+    color: "#ffffff",
+  },
+  {
+    id: 4,
+    value: "Gift 4",
+    bgColor: "#7d7db3",
+    color: "#ffffff",
+  },
+  {
+    id: 5,
+    value: "Gift 5",
+    bgColor: "#ffffff",
+    color: "#000000",
+  },
+  {
+    id: 6,
+    value: "Gift 6",
+    bgColor: "#c92729",
+    color: "#ffffff",
+  },
+]);
 
-  // Reactive search query
-  const searchQuery = ref("");
-  const filteredMenuItems = computed(() => {
-    return menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
-  });
-  
+const logo: ImgParams = {
+  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vue.js_Logo_2.svg/2367px-Vue.js_Logo_2.svg.png",
+  width: 100,
+  height: 120,
+};
 
+const done = (r: Data) => {
+  console.log("done", r);
+};
 
+const launchWheel = () => {
+  if (wheel.value) wheel.value.spin();
+};
 
+const menuItems: MenuItem[] = [
+  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
+  { name: "Products", path: "/products", icon: "Package" },
+  { name: "Orders", path: "/orders", icon: "ShoppingCart" },
+  { name: "Customers", path: "/customers", icon: "Package" },
+  { name: "Reports", path: "/reports", icon: "BarChart" },
+  { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
+  { name: "Cupon", path: "/cupon", icon: "BarChart" },
+  { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
+  { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
+  { name: "Billing", path: "/billing", icon: "BarChart" },
+];
 
+// Refs with proper typing
+const searchQuery = ref<string>("");
+const isModalOpen = ref<boolean>(false);
+const selectedItemIndex = ref<number | null>(null);
+const newItemName = ref<string>('');
+const cooldownTimes = ref<string[]>([""]);
+const canSpin = ref<boolean>(true);
+const countdown = ref<string>("Set your spin schedule");
+const shop = ref<{ name: string; logo: string }>({ name: "", logo: "" });
+const nextSpinTime = ref<number | null>(null);
+const scheduleMessage = ref<string>("");
+const spinTimers = ref<number[]>([]);
+const remainingSpins = ref<number>(0);
+const dailySchedule = ref<string[]>([]);
+const items = ref<string[]>(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
+const rotation = ref<number>(0);
+const spinning = ref<boolean>(false);
+const selectedItem = ref<string | null>(null);
+const selectedRotation = ref<number>(0);
+const selectedRotationIndex = ref<number>(0);
 
-  const isModalOpen = ref(false);
-const selectedItemIndex = ref(null);
-const newItemName = ref('');
+const cooldownActive = ref<boolean>(false);
+const countdownInterval = ref<null>(null);
+// Constants
+const COOLDOWN_TIMES_KEY = "scheduled_cooldown_times";
+const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
 
-// Open the modal and set the item to be edited
+// Computed properties with proper typing
+const filteredMenuItems = computed(() => {
+  return menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+});
+
 const openEditModal = (index) => {
   selectedItemIndex.value = index;
-  newItemName.value = items.value[index]; // Set the current item name
+  newItemName.value = items.value[index];
   isModalOpen.value = true;
 };
 
-// Close the modal without saving changes
 const closeModal = () => {
   isModalOpen.value = false;
   newItemName.value = '';
 };
 
-// Save the new name and update the items array
 const saveItemName = () => {
   if (selectedItemIndex.value !== null && newItemName.value.trim() !== '') {
     items.value[selectedItemIndex.value] = newItemName.value;
-    // Save updated items to localStorage
     localStorage.setItem("items", JSON.stringify(items.value));
     sendItemsToServer();
     closeModal();
   }
+};
 
+const addCooldownTime = () => {
+  cooldownTimes.value.push("");
+};
 
-  
+const removeCooldownTime = (index) => {
+  if (cooldownTimes.value.length > 1) {
+    cooldownTimes.value.splice(index, 1);
+  }
 };
 
 
+const formatDateTime = (timestamp) => {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' on ' + date.toLocaleDateString();
+};
 
 
+const submitCooldownTimes = () => {
+  // Clear any existing timers
+  spinTimers.value.forEach(timer => clearTimeout(timer));
+  spinTimers.value = [];
 
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value);
+  }
 
-// LocalStorage Keys
-const SPIN_KEY = "spin_timestamp";
-const COOLDOWN_KEY = "cooldown_duration";
+  // Filter out empty time entries
+  const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
 
-
-
-
-const lastSpinData = ref({
-  id: "user_id", // Replace with actual user/shop ID
-  rotation_pointer: null,
-  spin_time: null,
-  spin_time_left: null,
-  created_at: null, // Timestamp when the spin is created
-});
-
-
-
-
-
-// State Variables
-const cooldownHours = ref(0);
-const cooldownMinutes = ref(0);
-const lastSpinTime = ref(null);
-const canSpin = ref(true);
-const countdown = ref("");
-const cooldownActive = ref(false); // Prevents re-submitting cooldown
-
-// Shop Data
-const shop = ref({ name: "", logo: "" });
-
-
-
-
-const submitCooldown = async () => {
-  location.reload();  
-  if (cooldownActive.value) return; // Prevent submitting while cooldown is active
-   
-
-  
-  if (!cooldownTime.value) {
-    console.error("No cooldown time selected");
-    
-
+  if (validTimes.length === 0) {
+    scheduleMessage.value = "Please add at least one valid time";
     return;
   }
 
-  const [hours, minutes] = cooldownTime.value.split(":").map(Number); // Extract HH:MM
-  const now = new Date();
-  const selectedTime = new Date(now);
-  selectedTime.setHours(hours, minutes, 0, 0); // Set the cooldown end time to today
-
-  // If selected time is in the past, set it for the next day
-  if (selectedTime <= now) {
-    selectedTime.setDate(selectedTime.getDate() + 1); // Move to the next day
-  }
-
-  // Calculate the exact timestamp when cooldown expires
-  const cooldownEndTime = selectedTime.getTime();
-
-  // Store the exact cooldown end time in localStorage
-  localStorage.setItem("cooldownEndTime", cooldownEndTime);
-
-  canSpin.value = false;
-  cooldownActive.value = true;
   
-  // Start countdown using the stored cooldown end time
-  startCountdown(cooldownEndTime - Date.now());
+  const now = new Date();
+  let todaySchedule = [];
 
+  validTimes.forEach(timeString => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const spinTime = new Date(now);
+    spinTime.setHours(hours, minutes, 0, 0);
 
+    // If time has already passed today, schedule for tomorrow
+    if (spinTime <= now) {
+      spinTime.setDate(spinTime.getDate() + 1);
+    }
 
-    // Store `spin_time_left` before sending request
-  lastSpinData.value.spin_time_left = countdown.value;
+    todaySchedule.push(spinTime.getTime());
+  });
 
-try {
-  const response = await axios.post('', lastSpinData.value);
-  console.log("Spin & cooldown data sent successfully:", response.data);
-} catch (error) {
-  console.error("Error sending spin & cooldown data:", error);
-}
+  // Sort times chronologically
+  todaySchedule.sort((a, b) => a - b);
 
+  // Store the original time strings and the calculated schedule
+  localStorage.setItem("cooldown_time_strings", JSON.stringify(validTimes));
+  localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(todaySchedule));
+
+  // Keep the daily schedule for reference
+  dailySchedule.value = validTimes;
+
+  // Set next spin time and start countdown
+  if (todaySchedule.length > 0) {
+    nextSpinTime.value = todaySchedule[0];
+    remainingSpins.value = todaySchedule.length;
+    startCountdown();
+
+    // Schedule all spins
+    scheduleAllSpins(todaySchedule);
+
+    scheduleMessage.value = `Scheduled ${todaySchedule.length} spin${todaySchedule.length > 1 ? 's' : ''} for today`;
+  }
 };
 
+const scheduleAllSpins = (times) => {
+  times.forEach(time => {
+    const delay = time - Date.now();
+    if (delay > 0) {
+      const timer = setTimeout(() => {
+        spin();
 
+        // Decrease remaining spins count
+        remainingSpins.value--;
 
+        // Remove this time from the schedule
+        const remainingTimes = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
+          .filter(t => t > Date.now());
+        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(remainingTimes));
 
+        // Update UI based on remaining spins
+        if (remainingTimes.length === 0) {
+          // No more spins today
+          nextSpinTime.value = null;
+          scheduleMessage.value = "No more spins remaining today";
+          countdown.value = "Set your spin schedule";
+          // Clear the countdown interval
+          if (countdownInterval.value) {
+            clearInterval(countdownInterval.value);
+            countdownInterval.value = null;
+          }
+        } else {
+          // Update next spin time
+          nextSpinTime.value = remainingTimes[0];
+          startCountdown();
+        }
+      }, delay);
+
+      spinTimers.value.push(timer);
+    }
+  });
+};
+
+const startCountdown = () => {
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value);
+  }
+
+  if (!nextSpinTime.value) {
+    countdown.value = "Set your spin schedule";
+    return;
+  }
+
+  countdownInterval.value = setInterval(() => {
+    const remainingTime = nextSpinTime.value - Date.now();
+
+    if (remainingTime <= 0) {
+      clearInterval(countdownInterval.value);
+      countdown.value = "Spinning now...";
+    } else {
+      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+      countdown.value = `Next spin in: ${hours}h ${minutes}m ${seconds}s`;
+    }
+  }, 1000);
+};
 
 onMounted(() => {
-
-  console.log('Full api:', import.meta.env.VITE_API_BASE_URL); 
   const savedShop = localStorage.getItem("shopData");
   if (savedShop) {
     shop.value = JSON.parse(savedShop);
-
   }
 
   const savedItems = localStorage.getItem("items");
   if (savedItems) {
     items.value = JSON.parse(savedItems);
-  } 
-
-  loadFromLocalStorage();
-
-
-
-
-    // Restore cooldown timer if it was set before refresh
-  const cooldownEndTime = localStorage.getItem("cooldownEndTime");
-
-if (cooldownEndTime) {
-  const timeLeft = cooldownEndTime - Date.now();
-
-  if (timeLeft > 0) {
-    canSpin.value = false;
-    cooldownActive.value = true;
-    startCountdown(timeLeft);
-  } else {
-    canSpin.value = true;
-    cooldownActive.value = false;
-    countdown.value = "";
   }
-}
 
+  // Load time strings first
+  const savedTimeStrings = localStorage.getItem("cooldown_time_strings");
+  if (savedTimeStrings) {
+    cooldownTimes.value = JSON.parse(savedTimeStrings);
+    dailySchedule.value = cooldownTimes.value;
+  }
 
+  // Load scheduled cooldown times
+  const savedTimes = localStorage.getItem(COOLDOWN_TIMES_KEY);
+  if (savedTimes) {
+    const parsedTimes = JSON.parse(savedTimes);
+    if (parsedTimes.length > 0) {
+      // Filter out past times
+      const validTimes = parsedTimes.filter(time => time > Date.now());
+
+      if (validTimes.length > 0) {
+        nextSpinTime.value = validTimes[0];
+        remainingSpins.value = validTimes.length;
+
+        // Update localStorage with filtered times
+        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(validTimes));
+
+        // Start countdown and schedule spins
+        startCountdown();
+        scheduleAllSpins(validTimes);
+      } else {
+        // All times have passed, reset UI
+        nextSpinTime.value = null;
+        remainingSpins.value = 0;
+        scheduleMessage.value = "No more spins remaining today";
+        countdown.value = "Set your spin schedule";
+
+        // Clear localStorage of today's schedule but keep the time strings
+        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify([]));
+      }
+    }
+  }
 });
 
-// Items for Spin Wheel
-//const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
-const rotation = ref(0);
-const spinning = ref(false);
-const selectedItem = ref(null);
-
-// Load data from localStorage
-const loadFromLocalStorage = () => {
-  lastSpinTime.value = localStorage.getItem(SPIN_KEY);
-  const savedCooldown = localStorage.getItem(COOLDOWN_KEY);
-
-  if (savedCooldown) {
-    const { hours, minutes } = JSON.parse(savedCooldown);
-    cooldownHours.value = hours;
-    cooldownMinutes.value = minutes;
-  }
-
-  checkSpinAvailability();
-};
-
-// Save data to localStorage
-const saveToLocalStorage = () => {
-  localStorage.setItem(SPIN_KEY, lastSpinTime.value);
-  localStorage.setItem(
-    COOLDOWN_KEY,
-    JSON.stringify({ hours: cooldownHours.value, minutes: cooldownMinutes.value })
-  );
-};
-
-// Check Spin Availability
-const checkSpinAvailability = () => {
-  if (!lastSpinTime.value) return;
-
-  const lastSpinTimestamp = parseInt(lastSpinTime.value);
-  const cooldownMs = (cooldownHours.value * 60 * 60 * 1000) + (cooldownMinutes.value * 60 * 1000);
-  const currentTime = Date.now();
-  const timeLeft = lastSpinTimestamp + cooldownMs - currentTime;
-
-  if (timeLeft > 0) {
-    canSpin.value = false;
-    cooldownActive.value = true; // Prevents changing cooldown while active
-    startCountdown(timeLeft);
-  } else {
-    canSpin.value = true;
-    cooldownActive.value = false; // Re-enables cooldown input
-   // countdown.value = "Ready to Spin!";
-  }
+// Add helper function for countdown display
+const updateCountdownDisplay = (remainingTime: number) => {
+  const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+  countdown.value = `${hours}h ${minutes}m ${seconds}s left`;
 };
 
 
-
-
-
-
-
-
-
-
-
-// Start Countdown Timer
-const startCountdown = (timeLeftMs) => {
-  canSpin.value = false;
-  cooldownActive.value = true;
-
-  const endTime = Date.now() + timeLeftMs;
-
-  const interval = setInterval(() => {
-    const remainingTime = endTime - Date.now();
-
-    if (remainingTime <= 0) {
-      clearInterval(interval);
-      canSpin.value = true;
-      cooldownActive.value = false;
-      countdown.value = "Select Cooldown Value";
-      spin();
-    } else {
-      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-      countdown.value = `${hours}h ${minutes}m ${seconds}s left`;
-    }
-  }, 1000);
-};
-
-
-
-
-
-
-
-// Rotation Values Array
-const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
-
-// Declare refs to store the selected rotation and its index
-const selectedRotation = ref(0);
-const selectedRotationIndex = ref(0);
-
-const randomIndex = Math.floor(Math.random() * rotationValues.length);
-
-// Store the random number and its index
-
-selectedRotation.value = rotationValues[randomIndex];
-selectedRotationIndex.value = randomIndex;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Handle Spin
 const spin = () => {
-  if (spinning.value || !canSpin.value) return;
+  if (spinning.value) return;
 
   spinning.value = true;
-  const randomSpin = Math.floor(1800 + Math.random() * 1800);
-  rotation.value =selectedRotation.value;
-  const spinTime = Date.now(); 
-   // Store spin data for later submission
-  lastSpinData.value.rotation_pointer = randomIndex;
-  lastSpinData.value.spin_time = spinTime;
-  lastSpinData.value.created_at = new Date().toISOString(); // Store created_at timestamp
 
-
+  // Generate a new random rotation
+  const randomIndex = Math.floor(Math.random() * rotationValues.length);
+  selectedRotation.value = rotationValues[randomIndex];
+  selectedRotationIndex.value = randomIndex;
+  rotation.value = selectedRotation.value;
 
   setTimeout(() => {
     spinning.value = false;
-    const totalRotation = rotation.value % 360;
-    const segmentSize = 360 / items.value.length;
-    const index = Math.floor((totalRotation + segmentSize / 2) / segmentSize) % items.value.length;
-    selectedItem.value = items.value[index];
-
-    // Save Spin Timestamp
-    lastSpinTime.value = Date.now();
-    saveToLocalStorage();
-    //checkSpinAvailability();
+    selectedItem.value = items.value[selectedRotationIndex.value];
   }, 3000);
-
-  countdown.value="Select Cooldown Value";
 };
 
-// Submit Cooldown Time
-
-
-
-
-
-
-
-/*
 const sendItemsToServer = async () => {
-  const storedItems = localStorage.getItem("items");
-
-  if (storedItems) {
-    const items = JSON.parse(storedItems);
-
-    const config = useRuntimeConfig();
-    const apiUrl = config.API_BASE_URL;
-
-    try {
-      const response = await axios.post(`${apiUrl}/luckyspin`, {
-        items: items, // Send the array in the request body
-      });
-      
-      console.log('Items sent successfully:', response.data);
-      console.log('Full response:', response); // Inspect the full response including headers and body
-    } catch (error) {
-      console.error('Error sending items:', error);
-    }
-  } else {
-    console.log('No items found in localStorage');
-  }
-};
-
-*/
-
-const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
-
-const sendItemsToServer = async () => {
-  
   try {
-    // Get the token from localStorage (after successful login)
-    const token = localStorage.getItem('token');  // Retrieve the token from localStorage
-    console.log('token:', token);
-    // Check if the token exists
+    const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found! Please log in first.');
-      return; // Stop the function if there's no token
+      return;
     }
 
-    // Send the request with the token
     const response = await axios.patch(
-      `${import.meta.env.VITE_API_BASE_URL}/spinner-items`, 
-      { items: items.value },  // Send the array in the request body
+      `${import.meta.env.VITE_API_BASE_URL}/spinner-items`,
+      { items: items.value },
       {
         headers: {
-          'Authorization': `Bearer ${token}`,  // Set the Authorization header with the token
+          'Authorization': `Bearer ${token}`,
         }
       }
     );
 
-    console.log('Items sent successfully:', response.data); // Log the success message
 
+
+
+    console.log('Items sent successfully:', response.data);
   } catch (error) {
-    console.error('Error sending items:', error); // Log the error if any
+    console.error('Error sending items:', error);
   }
 };
-
-
 </script>
 
-
-
-
-
 <style scoped>
-/* Additional styling can be added here */
-.text-xs {
-  font-size: 5px;
-}
-.fill-black {
-  fill: black;
-}
-
-.min-h-screen {
-  position: relative;
-}
-
 @keyframes twinkle {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .animate-twinkle {
   animation: twinkle 2s infinite;
+}
+
+/* Enhanced text styling */
+.text-sm {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.7);
+}
+
+/* Transitions */
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+.scale-102 {
+  --tw-scale-x: 1.02;
+  --tw-scale-y: 1.02;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+/* Glass effect */
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+}
+
+/* Additional animations */
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(147, 51, 234, 0.5),
+      0 0 10px rgba(147, 51, 234, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.7),
+      0 0 20px rgba(147, 51, 234, 0.5);
+  }
+}
+
+.glow-effect {
+  animation: glow 2s infinite;
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto;
+  width: 100%;
+  max-width: 500px;
 }
 </style>
