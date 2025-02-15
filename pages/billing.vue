@@ -121,8 +121,9 @@
                       <th class="px-6 py-3">Actions</th>
                     </tr>
                   </thead>
+                  <!-- Replace the v-for in the table body -->
                   <tbody class="divide-y divide-gray-200">
-                    <tr v-for="customer in customers" :key="customer.id" 
+                    <tr v-for="customer in paginatedCustomers" :key="customer.id" 
                       class="hover:bg-gray-50 transition-colors duration-150 customer-row">
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.id }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.phone }}</td>
@@ -152,6 +153,60 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+              <!-- Add this pagination component after the table -->
+              <div class="flex items-center justify-between px-6 py-4 bg-white border-t">
+                <!-- Pagination Info -->
+                <div class="text-sm text-gray-500">
+                  Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
+                  {{ Math.min(currentPage * itemsPerPage, customers.length) }} of 
+                  {{ customers.length }} entries
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="flex items-center space-x-2">
+                  <button 
+                    @click="previousPage"
+                    :disabled="currentPage === 1"
+                    :class="[
+                      'pagination-button',
+                      currentPage === 1 
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'pagination-inactive'
+                    ]"
+                  >
+                    Previous
+                  </button>
+
+                  <div class="flex items-center space-x-1">
+                    <template v-for="page in totalPages" :key="page">
+                      <button
+                        @click="handlePageChange(page)"
+                        :class="[
+                          'pagination-button',
+                          currentPage === page
+                            ? 'pagination-active'
+                            : 'pagination-inactive'
+                        ]"
+                      >
+                        {{ page }}
+                      </button>
+                    </template>
+                  </div>
+
+                  <button 
+                    @click="nextPage"
+                    :disabled="currentPage === totalPages"
+                    :class="[
+                      'pagination-button',
+                      currentPage === totalPages 
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'pagination-inactive'
+                    ]"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </template>
           </div>
@@ -220,11 +275,38 @@ const filteredMenuItems = computed(() => {
 
 // Toast class computation
 const toastClass = computed(() => ({
-  'bg-green-600': toastStatus.value === 'success',
-  'bg-red-600': toastStatus.value === 'error',
-  'bg-green-600': toastStatus.value === 'paid',
-  'bg-red-600': toastStatus.value === 'due'
+  'bg-green-600 ring-1 ring-green-500/10': toastStatus.value === 'success' || toastStatus.value === 'paid',
+  'bg-red-600 ring-1 ring-red-500/10': toastStatus.value === 'error' || toastStatus.value === 'due'
 }));
+
+// Add these refs in the script setup section after existing refs
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = ref(0);
+
+// Add computed property for paginated customers
+const paginatedCustomers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return customers.value.slice(start, end);
+});
+
+// Add pagination methods
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
 
 // Methods
 const fetchCustomers = async () => {
@@ -269,12 +351,12 @@ const fetchCustomers = async () => {
     };
 
     if (data.success && data.data && data.data.result) {
-      // Set initial status for customers based on balance
       customers.value = data.data.result.map(customer => ({
         ...customer,
         status: customer.status || (parseFloat(customer.balance) > 0 ? 'due' : 'paid')
       }));
-      console.log('Customers loaded:', customers.value);
+      totalPages.value = Math.ceil(customers.value.length / itemsPerPage.value);
+      currentPage.value = 1; // Reset to first page when new data is loaded
       showToastMessage('Customer data loaded successfully', 'success');
     } else {
       throw new Error('Invalid data structure received from API');
@@ -368,17 +450,32 @@ onMounted(async () => {
 .toast {
   max-width: 350px;
   min-width: 200px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Toast animations */
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(10px) scale(0.95);
+}
+
+/* Toast status colors */
+.toast.bg-green-600 {
+  background: linear-gradient(145deg, #059669, #10b981);
+  border-left: 4px solid #34d399;
+}
+
+.toast.bg-red-600 {
+  background: linear-gradient(145deg, #dc2626, #ef4444);
+  border-left: 4px solid #f87171;
 }
 
 /* Customer row animation */
@@ -461,5 +558,26 @@ onMounted(async () => {
   .border-red-300 {
     border-color: rgba(220, 38, 38, 0.4);
   }
+}
+
+/* Add these styles to your existing <style> section */
+.pagination-button {
+  @apply px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150;
+}
+
+.pagination-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.pagination-button:not(:disabled):hover {
+  @apply bg-gray-50;
+}
+
+.pagination-active {
+  @apply bg-indigo-600 text-white;
+}
+
+.pagination-inactive {
+  @apply bg-white text-gray-700 hover:bg-gray-50 border;
 }
 </style>
