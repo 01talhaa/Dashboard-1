@@ -15,198 +15,165 @@
           class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
       </div>
 
-      
       <nav class="mt-3 sm:mt-6">
         <template v-for="(item, index) in filteredMenuItems" :key="index">
           <router-link :to="item.path"
-          class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-          <component :is="item.icon" class="w-5 h-5" />
-          <span class="ml-3">{{ item.name }}</span>
-        </router-link>
-        
-        
-      </template>
-    </nav>
-    
-    <router-link to="/" class="mx-7 py-80 text-red-500 text-left block">
-      Logout
-    </router-link>
-  </aside>
-  
-  <!-- Main Content -->
-  <div class="flex-1 overflow-auto transition-all duration-300">
-    <!-- Header -->
-    <header class="bg-white border-b sticky top-0 z-10">
-      <div class="flex items-center justify-between px-6 py-4">
-        <div class="flex items-center space-x-4">
-        </div>
-        <div class="flex items-center space-x-4">
+            class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
+            <component :is="item.icon" class="w-5 h-5" />
+            <span class="ml-3">{{ item.name }}</span>
+          </router-link>
+        </template>
+      </nav>
+
+      <router-link to="/" class="mx-7 py-80 text-red-500 text-left block">
+        Logout
+      </router-link>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto transition-all duration-300">
+      <!-- Header -->
+      <header class="bg-white border-b sticky top-0 z-10">
+        <div class="flex items-center justify-between px-6 py-4">
           <div class="flex items-center space-x-4">
-            <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
-              <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
-              <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
-            </router-link>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4">
+              <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
+                <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
+                <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
+              </router-link>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
-    
-    <!-- Enhanced Main Content -->
-    <main class="p-6 bg-gradient-to-br from-gray-900 to-purple-900 min-h-[calc(100vh-64px)]">
-      <div class="max-w-7xl mx-auto">
-        <!-- Cooldown Section with Multiple Times -->
-        <div class="mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl">
-          <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-            <span class="mr-2">⏱️</span> Set Cooldown Times
-          </h2>
-          <div class="mb-2">
-            <div v-for="(time, index) in cooldownTimes" :key="index" class="flex items-center mb-2">
-              <input type="time" v-model="cooldownTimes[index]"
-              class="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-              <button @click="removeCooldownTime(index)"
-              class="ml-2 p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-white transition-colors">
-              <span>×</span>
-            </button>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-4 items-center mt-4">
-          <button @click="addCooldownTime"
-          class="px-6 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-          + Add Time
-        </button>
-        <button @click="submitCooldownTimes"
-        class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-        Submit All Times
-      </button>
-    </div>
-    <div class="mt-4">
-      <p class="text-xl font-medium text-purple-300">{{ countdown }}</p>
-      <div v-if="nextSpinTime" class="mt-2 text-sm text-purple-300">
-        Next spin at: {{ formatDateTime(nextSpinTime) }}
-      </div>
-      <div v-if="scheduleMessage" class="mt-2 text-sm text-green-300">
-        {{ scheduleMessage }}
-      </div>
-      <div v-if="remainingSpins > 0" class="mt-2 text-sm text-amber-300">
-        {{ remainingSpins }} spins remaining today
-      </div>
-    </div>
-  </div>
-  
-  
-  
-  
-  <!-- Spinner Section -->
-  
-  
-  <div class="wrap" @click="launchWheel">
-    <FortuneWheel ref="wheel" v-model="gift" :middle-circle="true" :imgParams="logo" :data="data" @done="done" />
-  </div>
-  
+      </header>
 
-
-          <!-- Edit Modal -->
-          <div v-if="isModalOpen"
-            class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
-            <div class="bg-gray-900 p-6 rounded-xl border border-white/20 max-w-sm w-full shadow-2xl">
-              <h3 class="text-xl font-bold text-white mb-4">Edit Item Name</h3>
-              <input v-model="newItemName"
-                class="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
-              <div class="mt-6 flex justify-end gap-4">
-                <button @click="closeModal" class="px-4 py-2 text-gray-300 hover:text-white transition-colors">
-                  Cancel
+      <!-- Enhanced Main Content -->
+      <main class="p-6 bg-gradient-to-br from-gray-900 to-purple-900 min-h-[calc(100vh-64px)]">
+        <div class="max-w-7xl mx-auto">
+          <!-- Cooldown Section with Multiple Times -->
+          <div class="mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+              <span class="mr-2">⏱️</span> Set Cooldown Times
+            </h2>
+            <div class="mb-2">
+              <div v-for="(time, index) in cooldownTimes" :key="index" class="flex items-center mb-2">
+                <input type="time" v-model="cooldownTimes[index]"
+                  class="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                <button @click="removeCooldownTime(index)"
+                  class="ml-2 p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-white transition-colors">
+                  <span>×</span>
                 </button>
-                <button @click="saveItemName"
-                  class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
-                  Save
-                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center mt-4">
+              <button @click="addCooldownTime"
+                class="px-6 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                + Add Time
+              </button>
+              <button @click="submitCooldownTimes"
+                class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                Submit All Times
+              </button>
+            </div>
+            <div class="mt-4">
+              <p class="text-xl font-medium text-purple-300">{{ countdown }}</p>
+              <div v-if="nextSpinTime" class="mt-2 text-sm text-purple-300">
+                Next spin at: {{ formatDateTime(nextSpinTime) }}
+              </div>
+              <div v-if="scheduleMessage" class="mt-2 text-sm text-green-300">
+                {{ scheduleMessage }}
+              </div>
+              <div v-if="remainingSpins > 0" class="mt-2 text-sm text-amber-300">
+                {{ remainingSpins }} spins remaining today
               </div>
             </div>
           </div>
 
+          <!-- Spinner Section -->
+          <div class="relative bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-xl">
+            <!-- Sparkle Effects -->
+            <div class="absolute inset-0 overflow-hidden">
+              <div v-for="n in 20" :key="n" class="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+                :style="`top: ${Math.random() * 100}%; left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 2}s`">
+              </div>
+            </div>
+
+            <!-- Spinner Wheel Container -->
+            <div class="relative flex justify-center items-center mb-8">
+              <div class="w-96 h-96 relative">
+                <!-- Pointer -->
+                <div
+                  class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-10 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-b-lg z-10 shadow-lg">
+                </div>
+
+                <!-- Wheel -->
+                <div
+                  class="w-full h-full rounded-full border-4 border-white/20 shadow-2xl relative overflow-hidden transform hover:scale-102 transition-transform duration-300"
+                  :style="{ transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 3s cubic-bezier(0.4, 2, 0.55, 1)' : 'none' }">
+                  <svg viewBox="0 0 100 100" class="absolute w-full h-full">
+                    <g v-for="(item, index) in items" :key="index"
+                      :transform="`rotate(${(360 / items.length) * index}, 50, 50)`">
+
+                      <path :d="`M50,50 L100,50 A50,50 0 0,1 50,0 Z`"
+                        :fill="index % 2 === 0 ? 'rgba(147, 51, 234, 0.9)' : 'rgba(219, 39, 119, 0.9)'"
+                        stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
+                      <text x="72" y="28" text-anchor="middle" transform="rotate(90, 72, 28)"
+                        class="text-[8px] fill-white font-medium" style="font-size: 6px;">{{ item.value }}
+                      </text>
+
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Winner Display -->
+            <div v-if="selectedItem"
+              class="mt-6 text-center p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl backdrop-blur-sm border border-white/10">
+              <h3 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300">
+                You won: {{ items[selectedRotationIndex].value }}! 🎉
+              </h3>
+            </div>
+          </div>
+
+          <!-- Items Grid -->
+          <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div v-for="(item, index) in items" :key="index" @click="openEditModal(index)"
+              class="p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 cursor-pointer hover:bg-white/10 transition-all duration-300 group">
+              <p class="text-white text-center group-hover:scale-105 transition-transform">{{ item.value }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div v-if="isModalOpen"
+          class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
+          <div class="bg-gray-900 p-6 rounded-xl border border-white/20 max-w-sm w-full shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Edit Item Name</h3>
+            <input v-model="newItemName"
+              class="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+            <div class="mt-6 flex justify-end gap-4">
+              <button @click="closeModal" class="px-4 py-2 text-gray-300 hover:text-white transition-colors">
+                Cancel
+              </button>
+              <button @click="saveItemName"
+                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-import { FortuneWheel } from 'vue3-fortune-wheel';
-import type { Data } from 'vue3-fortune-wheel';
 
-// Type definitions
-interface ImgParams {
-  src: string;
-  width: number;
-  height: number;
-}
-
-interface MenuItem {
-  name: string;
-  path: string;
-  icon: string;
-  active?: boolean;
-}
-
-// Initialize refs with proper typing
-const gift = ref<number>(4);
-const wheel = ref<InstanceType<typeof FortuneWheel> | null>(null);
-const data = ref<Data[]>([
-  {
-    id: 1,
-    value: "Gift 1",
-    bgColor: "#7d7db3",
-    color: "#ffffff",
-  },
-  {
-    id: 2,
-    value: "Gift 2",
-    bgColor: "#ffffff",
-    color: "#000000",
-  },
-  {
-    id: 3,
-    value: "Gift 3",
-    bgColor: "#c92729",
-    color: "#ffffff",
-  },
-  {
-    id: 4,
-    value: "Gift 4",
-    bgColor: "#7d7db3",
-    color: "#ffffff",
-  },
-  {
-    id: 5,
-    value: "Gift 5",
-    bgColor: "#ffffff",
-    color: "#000000",
-  },
-  {
-    id: 6,
-    value: "Gift 6",
-    bgColor: "#c92729",
-    color: "#ffffff",
-  },
-]);
-
-const logo: ImgParams = {
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vue.js_Logo_2.svg/2367px-Vue.js_Logo_2.svg.png",
-  width: 100,
-  height: 120,
-};
-
-const done = (r: Data) => {
-  console.log("done", r);
-};
-
-const launchWheel = () => {
-  if (wheel.value) wheel.value.spin();
-};
-
-const menuItems: MenuItem[] = [
+const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
   { name: "Products", path: "/products", icon: "Package" },
   { name: "Orders", path: "/orders", icon: "ShoppingCart" },
@@ -219,195 +186,32 @@ const menuItems: MenuItem[] = [
   { name: "Billing", path: "/billing", icon: "BarChart" },
 ];
 
-// Refs with proper typing
-const searchQuery = ref<string>("");
-const isModalOpen = ref<boolean>(false);
-const selectedItemIndex = ref<number | null>(null);
-const newItemName = ref<string>('');
-const cooldownTimes = ref<string[]>([""]);
-const canSpin = ref<boolean>(true);
-const countdown = ref<string>("Set your spin schedule");
-const shop = ref<{ name: string; logo: string }>({ name: "", logo: "" });
-const nextSpinTime = ref<number | null>(null);
-const scheduleMessage = ref<string>("");
-const spinTimers = ref<number[]>([]);
-const remainingSpins = ref<number>(0);
-const dailySchedule = ref<string[]>([]);
-const items = ref<string[]>(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
-const rotation = ref<number>(0);
-const spinning = ref<boolean>(false);
-const selectedItem = ref<string | null>(null);
-const selectedRotation = ref<number>(0);
-const selectedRotationIndex = ref<number>(0);
-
-const cooldownActive = ref<boolean>(false);
-const countdownInterval = ref<null>(null);
-// Constants
-const COOLDOWN_TIMES_KEY = "scheduled_cooldown_times";
-const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
-
-// Computed properties with proper typing
+const searchQuery = ref("");
 const filteredMenuItems = computed(() => {
   return menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
 });
 
-const openEditModal = (index) => {
-  selectedItemIndex.value = index;
-  newItemName.value = items.value[index];
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-  newItemName.value = '';
-};
-
-const saveItemName = () => {
-  if (selectedItemIndex.value !== null && newItemName.value.trim() !== '') {
-    items.value[selectedItemIndex.value] = newItemName.value;
-    localStorage.setItem("items", JSON.stringify(items.value));
-    sendItemsToServer();
-    closeModal();
-  }
-};
-
-const addCooldownTime = () => {
-  cooldownTimes.value.push("");
-};
-
-const removeCooldownTime = (index) => {
-  if (cooldownTimes.value.length > 1) {
-    cooldownTimes.value.splice(index, 1);
-  }
-};
-
-
-const formatDateTime = (timestamp) => {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' on ' + date.toLocaleDateString();
-};
-
-
-const submitCooldownTimes = () => {
-  // Clear any existing timers
-  spinTimers.value.forEach(timer => clearTimeout(timer));
-  spinTimers.value = [];
-
-  if (countdownInterval.value) {
-    clearInterval(countdownInterval.value);
-  }
-
-  // Filter out empty time entries
-  const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
-
-  if (validTimes.length === 0) {
-    scheduleMessage.value = "Please add at least one valid time";
-    return;
-  }
-
-  
-  const now = new Date();
-  let todaySchedule = [];
-
-  validTimes.forEach(timeString => {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    const spinTime = new Date(now);
-    spinTime.setHours(hours, minutes, 0, 0);
-
-    // If time has already passed today, schedule for tomorrow
-    if (spinTime <= now) {
-      spinTime.setDate(spinTime.getDate() + 1);
-    }
-
-    todaySchedule.push(spinTime.getTime());
-  });
-
-  // Sort times chronologically
-  todaySchedule.sort((a, b) => a - b);
-
-  // Store the original time strings and the calculated schedule
-  localStorage.setItem("cooldown_time_strings", JSON.stringify(validTimes));
-  localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(todaySchedule));
-
-  // Keep the daily schedule for reference
-  dailySchedule.value = validTimes;
-
-  // Set next spin time and start countdown
-  if (todaySchedule.length > 0) {
-    nextSpinTime.value = todaySchedule[0];
-    remainingSpins.value = todaySchedule.length;
-    startCountdown();
-
-    // Schedule all spins
-    scheduleAllSpins(todaySchedule);
-
-    scheduleMessage.value = `Scheduled ${todaySchedule.length} spin${todaySchedule.length > 1 ? 's' : ''} for today`;
-  }
-};
-
-const scheduleAllSpins = (times) => {
-  times.forEach(time => {
-    const delay = time - Date.now();
-    if (delay > 0) {
-      const timer = setTimeout(() => {
-        spin();
-
-        // Decrease remaining spins count
-        remainingSpins.value--;
-
-        // Remove this time from the schedule
-        const remainingTimes = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
-          .filter(t => t > Date.now());
-        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(remainingTimes));
-
-        // Update UI based on remaining spins
-        if (remainingTimes.length === 0) {
-          // No more spins today
-          nextSpinTime.value = null;
-          scheduleMessage.value = "No more spins remaining today";
-          countdown.value = "Set your spin schedule";
-          // Clear the countdown interval
-          if (countdownInterval.value) {
-            clearInterval(countdownInterval.value);
-            countdownInterval.value = null;
-          }
-        } else {
-          // Update next spin time
-          nextSpinTime.value = remainingTimes[0];
-          startCountdown();
-        }
-      }, delay);
-
-      spinTimers.value.push(timer);
-    }
-  });
-};
-
-const startCountdown = () => {
-  if (countdownInterval.value) {
-    clearInterval(countdownInterval.value);
-  }
-
-  if (!nextSpinTime.value) {
-    countdown.value = "Set your spin schedule";
-    return;
-  }
-
-  countdownInterval.value = setInterval(() => {
-    const remainingTime = nextSpinTime.value - Date.now();
-
-    if (remainingTime <= 0) {
-      clearInterval(countdownInterval.value);
-      countdown.value = "Spinning now...";
-    } else {
-      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-      countdown.value = `Next spin in: ${hours}h ${minutes}m ${seconds}s`;
-    }
-  }, 1000);
-};
+const isModalOpen = ref(false);
+const selectedItemIndex = ref(null);
+const newItemName = ref('');
+const COOLDOWN_TIMES_KEY = "scheduled_cooldown_times";
+const cooldownTimes = ref([""]);
+const countdown = ref("Set your spin schedule");
+const shop = ref({ name: "", logo: "" });
+const nextSpinTime = ref(null);
+const scheduleMessage = ref("");
+const spinTimers = ref([]);
+const remainingSpins = ref(0);
+const dailySchedule = ref([]);
+const countdownInterval = ref(null);
+const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
+const rotation = ref(0);
+const spinning = ref(false);
+const selectedItem = ref(null);
+const selectedRotation = ref(0);
+const selectedRotationIndex = ref(0);
+const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
+const spinners = ref([]);
 
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
@@ -415,6 +219,11 @@ onMounted(() => {
     shop.value = JSON.parse(savedShop);
   }
 
+  fetchSpinnerItems();
+  console.log('Items:', items.value);
+
+
+  console.log(items.value)
   const savedItems = localStorage.getItem("items");
   if (savedItems) {
     items.value = JSON.parse(savedItems);
@@ -459,13 +268,208 @@ onMounted(() => {
   }
 });
 
-// Add helper function for countdown display
-const updateCountdownDisplay = (remainingTime: number) => {
-  const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-  countdown.value = `${hours}h ${minutes}m ${seconds}s left`;
+
+const fetchSpinnerItems = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found! Please log in first.');
+      return;
+    }
+
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/spinner`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+
+    items.value = response.data.data.items;
+    spinners.value = response.data.data.spinners;
+    console.log('Items fetched successfully:', items.value);
+  } catch (error) {
+    console.error('Error fetching items:', error);
+  }
 };
+
+
+const openEditModal = (index) => {
+  selectedItemIndex.value = index;
+  newItemName.value = items.value[index].value;
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  newItemName.value = '';
+};
+
+
+const saveItemName = () => {
+  if (selectedItemIndex.value !== null && newItemName.value.trim() !== '') {
+    items.value[selectedItemIndex.value].value = newItemName.value;
+    // localStorage.setItem("items", JSON.stringify(items.value));
+
+    // items.value[index].value = newItemName.value;
+    sendItemsToServer();
+    // fetchSpinnerItems();
+    closeModal();
+  }
+};
+
+const addCooldownTime = () => {
+  cooldownTimes.value.push("");
+};
+
+const removeCooldownTime = (index) => {
+  if (cooldownTimes.value.length > 1) {
+    cooldownTimes.value.splice(index, 1);
+  }
+};
+
+const formatDateTime = (timestamp) => {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' on ' + date.toLocaleDateString();
+};
+
+
+const submitCooldownTimes = () => {
+  // Clear any existing timers
+
+  spinTimers.value.forEach(timer => clearTimeout(timer));
+  spinTimers.value = [];
+
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value);
+  }
+
+  // Filter out empty time entries
+  const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
+
+  if (validTimes.length === 0) {
+    scheduleMessage.value = "Please add at least one valid time";
+    return;
+  }
+
+  // Calculate all spin times for today
+  const now = new Date();
+  let todaySchedule = [];
+
+  validTimes.forEach(timeString => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const spinTime = new Date(now);
+    spinTime.setHours(hours, minutes, 0, 0);
+
+    // If time has already passed today, schedule for tomorrow
+    if (spinTime <= now) {
+      spinTime.setDate(spinTime.getDate() + 1);
+    }
+
+    todaySchedule.push(spinTime.getTime());
+  });
+
+  // Sort times chronologically
+  todaySchedule.sort((a, b) => a - b);
+
+  // Store the original time strings and the calculated schedule
+  localStorage.setItem("cooldown_time_strings", JSON.stringify(validTimes));
+  localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(todaySchedule));
+
+  // Keep the daily schedule for reference
+  dailySchedule.value = validTimes;
+
+  // Set next spin time and start countdown
+  if (todaySchedule.length > 0) {
+    nextSpinTime.value = todaySchedule[0];
+    remainingSpins.value = todaySchedule.length;
+    startCountdown();
+
+    // Schedule all spins
+    scheduleAllSpins(todaySchedule);
+
+    scheduleMessage.value = `Scheduled ${todaySchedule.length} spin${todaySchedule.length > 1 ? 's' : ''} for today`;
+  }
+
+  // create an axios post call to spinner end point
+  // send the validTimes to the server
+  const data = {
+    spin_time: validTimes,
+    rotation_points: rotationValues,
+  };
+  axios.post(`${import.meta.env.VITE_API_BASE_URL}/spinner`, { validTimes })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
+const scheduleAllSpins = (times) => {
+  times.forEach(time => {
+    const delay = time - Date.now();
+    if (delay > 0) {
+      const timer = setTimeout(() => {
+        spin();
+
+        // Decrease remaining spins count
+        remainingSpins.value--;
+
+        // Remove this time from the schedule
+        const remainingTimes = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
+          .filter(t => t > Date.now());
+        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(remainingTimes));
+
+        // Update UI based on remaining spins
+        if (remainingTimes.length === 0) {
+          // No more spins today
+          nextSpinTime.value = null;
+          scheduleMessage.value = "No more spins remaining today";
+          countdown.value = "Set your spin schedule";
+          // Clear the countdown interval
+          if (countdownInterval.value) {
+            clearInterval(countdownInterval.value);
+            countdownInterval.value = null;
+          }
+        } else {
+          // Update next spin time
+          nextSpinTime.value = remainingTimes[0];
+          startCountdown();
+        }
+      }, delay);
+
+      spinTimers.value.push(timer);
+      console.log('Scheduled spin at:', spinTimers.value);
+    }
+  });
+};
+
+const startCountdown = () => {
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value);
+  }
+
+  if (!nextSpinTime.value) {
+    countdown.value = "Set your spin schedule";
+    return;
+  }
+
+  countdownInterval.value = setInterval(() => {
+    const remainingTime = nextSpinTime.value - Date.now();
+
+    if (remainingTime <= 0) {
+      clearInterval(countdownInterval.value);
+      countdown.value = "Spinning now...";
+    } else {
+      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+      countdown.value = `Next spin in: ${hours}h ${minutes}m ${seconds}s`;
+    }
+  }, 1000);
+};
+
+
 
 
 const spin = () => {
@@ -503,10 +507,10 @@ const sendItemsToServer = async () => {
       }
     );
 
-
-
-
-    console.log('Items sent successfully:', response.data);
+    if (response.data.success) {
+      console.log('Items sent successfully:', response.data);
+      items.value = response.data.data.items;
+    }
   } catch (error) {
     console.error('Error sending items:', error);
   }
@@ -593,14 +597,5 @@ const sendItemsToServer = async () => {
 
 .glow-effect {
   animation: glow 2s infinite;
-}
-
-.wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem auto;
-  width: 100%;
-  max-width: 500px;
 }
 </style>
