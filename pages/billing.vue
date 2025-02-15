@@ -54,7 +54,7 @@
       <header class="bg-white border-b shadow-sm sticky top-0 z-10">
         <div class="flex items-center justify-between px-6 py-3">
           <div class="flex items-center space-x-4">
-            <h2 class="text-lg font-semibold text-gray-800">Customer Management</h2>
+            <h2 class="text-lg font-semibold text-gray-800">Payment Request</h2>
           </div>
           <div class="flex items-center space-x-4">
             <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer border-2 border-gray-200 shadow-sm hover:border-red-500 transition-all duration-200">
@@ -70,7 +70,7 @@
         <div class="container mx-auto px-4 py-6">
           <div class="mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <h1 class="text-2xl font-bold text-gray-800 mb-2 sm:mb-0">Customer Details</h1>
+              <h1 class="text-2xl font-bold text-gray-800 mb-2 sm:mb-0"></h1>
               <button @click="fetchCustomers" 
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +129,7 @@
                       class="hover:bg-gray-50 transition-colors duration-150 customer-row">
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.id }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer.user.name }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.user.phone }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ customer.mobile_number }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                         {{ (customer.amount) }}
                       </td>

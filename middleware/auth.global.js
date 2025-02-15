@@ -1,20 +1,39 @@
 // middleware/auth.global.js
-
+import { useAuthStore } from '@/store/modules/auth'
 export default defineNuxtRouteMiddleware((to, from) => {
-    if (import.meta.server) return // Skip on the server side
+  // Skip on server side
+  if (process.server) return
 
-    const isAuthenticated = !!localStorage.getItem('token');  // Check if user is authenticated
+  const authStore = useAuthStore()
+  
+    // Initialize the auth store (load token and user from localStorage)
+    authStore.initializeAuth()
 
-    // List of protected routes where the user must be authenticated
-    const protectedRoutes = ['/dashboard', '/profile', '/settings'];  // Add your protected routes here
+  const token = localStorage.getItem('token')
+  const isAuthenticated = !!token
 
-    // If the user is not authenticated and trying to access a protected route, redirect to login
-   /* if (!isAuthenticated && protectedRoutes.includes(to.path)) {
-        return navigateTo('/login');  // Redirect to login page
-    }*/
+  // Define protected routes
+  const protectedRoutes = [
+    '/dashboard', 
+    '/profile', 
+    '/settings',
+    '/billing',
+    '/customers',
+    '/luckyspin'
+  ]
 
-    // If the user is authenticated and trying to access the login or register page, redirect to home
-    if (isAuthenticated && (to.path === '/login' || to.path === '/register')) {
-        return navigateTo('/');  // Redirect to home page
-    }
+  // Check if route requires auth
+  const requiresAuth = protectedRoutes.includes(to.path)
+
+   
+  // Redirect logic
+//   if (!isAuthenticated && requiresAuth) {
+//     return navigateTo('/login')
+//   }
+
+
+  // Prevent authenticated users from accessing login
+  if (isAuthenticated && to.path === '/login') {
+    return navigateTo('/dashboard')
+  }
 });

@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const token = authStore.token // Now using the token from the store
 
   // If there's no token, redirect to the login page
- /* if (!token && to.path !== '/') {
+if (!token && to.path !== '/') {
     return navigateTo('/')
-  }*/
+  }
 })

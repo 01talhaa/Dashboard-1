@@ -39,15 +39,6 @@
               {{ error }}
             </div>
           </form>
-
-          <!-- New Go to Dashboard Button 
-          <button
-            @click="handleLogin"
-            class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 relative overflow-hidden transition-all duration-300 mt-4"
-          >
-            Go to Dashboard
-          </button>-->
-
           
         </div>
       </div>
@@ -58,8 +49,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/store/modules/auth'
-
-
+import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app'
 
 const phone = ref('')
 const password = ref('12345678')
@@ -67,41 +57,52 @@ const error = ref<string | null>(null)
 const AuthStore = useAuthStore()
 const router = useRouter()
 
+// Add middleware check on component mount
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    router.push('/dashboard')
+  }
+})
 
 const handleLogin = async () => {
   try {
-    // Call the login action from the store
-    await AuthStore.login({ phone: String(phone.value), password: password.value })
-  
+    error.value = null
+    await AuthStore.login({ 
+      phone: String(phone.value), 
+      password: password.value 
+    })
 
-    // After successful login, navigate to the dashboard
-    await router.push('/dashboard')
+    // Store token after successful login
+    const token = AuthStore.getToken
+    if (token) {
+      localStorage.setItem('token', token)
+      await router.push('/dashboard')
+    } else {
+      throw new Error('No token received')
+    }
   } catch (err) {
-    error.value = 'Login failed'
+    error.value = err instanceof Error ? err.message : 'Login failed'
     console.error('Error logging in:', err)
   }
 }
 
-
-
-
+// Clean up on component unmount
+onUnmounted(() => {
+  error.value = null
+  phone.value = ''
+  password.value = ''
+})
 
 const handleGoogleLogin = () => {
   console.log('Google login clicked')
 }
 
-
 const handleFacebookLogin = () => {
   console.log('Facebook login clicked')
 }
 
-
 </script>
-
-
-
-
-
 
 <style scoped>
 body {
