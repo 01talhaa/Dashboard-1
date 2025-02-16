@@ -148,51 +148,118 @@
 
       <!-- Create/Edit Customer Modal -->
       <div v-if="showModal"
-        class="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-md shadow-md w-96">
-          <h2 class="text-2xl font-semibold mb-4">{{ editingCustomer ? 'Edit Customer' : 'Create Customer' }}</h2>
-
-          <div class="mb-4">
-            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
-            <input type="text" id="name" v-model="modalCustomer.name"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          </div>
-          <div class="mb-4">
-            <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Phone:</label>
-            <input type="text" id="phone" v-model="modalCustomer.phone"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          </div>
-          <div class="mb-4">
-            <label for="nid" class="block text-gray-700 text-sm font-bold mb-2">NID:</label>
-            <input type="text" id="nid" v-model="modalCustomer.nid"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          </div>
-          <div class="mb-4">
-            <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Address:</label>
-            <input type="text" id="address" v-model="modalCustomer.address"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          </div>
-          <div class="mb-4">
-            <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role:</label>
-            <select id="role" v-model="modalCustomer.role"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-              <option value="customer">Customer</option>
-              <!-- <option value="user">User</option>
-              <option value="admin">Admin</option> -->
-            </select>
-          </div>
-          <div class="mb-4">
-            <label for="walletBalance" class="block text-gray-700 text-sm font-bold mb-2">Wallet Balance:</label>
-            <input type="number" id="walletBalance" v-model="modalCustomer.walletBalance"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all">
+          <!-- Modal Header -->
+          <div
+            class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+            <h2 class="text-2xl font-bold">
+              {{ editingCustomer ? 'Edit Customer' : 'Create New Customer' }}
+            </h2>
+            <button @click="closeModal" class="text-white hover:text-red-200 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
+          <!-- Modal Body -->
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Name Field -->
+              <div class="form-group">
+                <label for="name" class="label-style">Name<span class="text-red-500">*</span></label>
+                <input type="text" id="name" v-model="modalCustomer.name" class="input-style"
+                  :class="{ 'border-red-500': formErrors.name }" placeholder="Enter customer name">
+              </div>
 
-          <div class="flex justify-end">
+              <!-- Phone Field -->
+              <div class="form-group">
+                <label for="phone" class="label-style">Phone<span class="text-red-500">*</span></label>
+                <input type="text" id="phone" v-model="modalCustomer.phone" class="input-style"
+                  :class="{ 'border-red-500': formErrors.phone }" placeholder="Enter phone number">
+              </div>
+
+              <!-- NID Field -->
+              <div class="form-group">
+                <label for="nid" class="label-style">NID</label>
+                <input type="text" id="nid" v-model="modalCustomer.nid" class="input-style"
+                  placeholder="Enter NID number">
+              </div>
+
+              <!-- Address Field -->
+              <div class="form-group">
+                <label for="address" class="label-style">Address</label>
+                <input type="text" id="address" v-model="modalCustomer.address" class="input-style"
+                  placeholder="Enter address">
+              </div>
+
+              <!-- Role Field -->
+              <div class="form-group">
+                <label for="role" class="label-style">Role</label>
+                <select id="role" v-model="modalCustomer.role" class="select-style">
+                  <option value="customer">Customer</option>
+                </select>
+              </div>
+
+              <!-- Wallet Balance Field -->
+              <div class="form-group">
+                <label for="walletBalance" class="label-style">Wallet Balance</label>
+                <input type="number" id="walletBalance" v-model="modalCustomer.walletBalance" class="input-style"
+                  placeholder="Enter initial balance">
+              </div>
+
+              <!-- Password Fields (Only for new customers) -->
+              <template v-if="!editingCustomer">
+                <div class="form-group">
+                  <label for="password" class="label-style">Password<span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <input :type="showPassword ? 'text' : 'password'" id="password" v-model="modalCustomer.password"
+                      class="input-style pr-10" :class="{ 'border-red-500': formErrors.password }"
+                      placeholder="Enter password">
+                    <button @click="showPassword = !showPassword"
+                      class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path v-if="showPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path v-if="showPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="password_confirmation" class="label-style">Confirm Password<span
+                      class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <input :type="showPassword ? 'text' : 'password'" id="password_confirmation"
+                      v-model="modalCustomer.password_confirmation" class="input-style pr-10"
+                      :class="{ 'border-red-500': formErrors.password_confirmation }" placeholder="Confirm password">
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end space-x-3">
             <button @click="closeModal"
-              class="bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 mr-2">Cancel</button>
+              class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+              Cancel
+            </button>
             <button @click="saveCustomer"
-              class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700">Save</button>
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+              <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              {{ loading ? 'Saving...' : 'Save Customer' }}
+            </button>
           </div>
         </div>
       </div>
@@ -249,8 +316,14 @@ const modalCustomer = ref({
   nid: '',
   address: '',
   walletBalance: 0,
-  role: 'customer' // Add default role
+  role: 'customer',
+  password: '',
+  password_confirmation: ''
 });
+
+// Add these to your existing refs
+const showPassword = ref(false);
+const formErrors = ref({});
 
 // Update these refs for pagination
 const currentPage = ref(1);
@@ -261,10 +334,10 @@ const lastPage = ref(1);
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
   if (savedShop) {
-    shop.value = JSON.parse(savedShop); // Populate shop data from localStorage
+    shop.value = JSON.parse(savedShop); 
   }
 
-  fetchCustomers(); // Fetch customers when the component is mounted
+  fetchCustomers(); 
 });
 
 // Fetch customers from API
@@ -354,7 +427,9 @@ const openCreateModal = () => {
     nid: '',
     address: '',
     walletBalance: 0,
-    role: 'customer'
+    role: 'customer',
+    password: '',
+    password_confirmation: ''
   };
   showModal.value = true;
 };
@@ -510,5 +585,31 @@ select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
   border-color: #3b82f6;
+}
+
+.form-group {
+  @apply mb-4;
+}
+
+.label-style {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.input-style {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+}
+
+.select-style {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  @apply transition-opacity duration-300;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  @apply opacity-0;
 }
 </style>
