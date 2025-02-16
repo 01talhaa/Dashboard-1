@@ -5,22 +5,23 @@
       <div class="p-2 sm:p-4">
         <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
           <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
-          <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span class="text-red-500">Platform</span></span>
+          <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span
+              class="text-red-500">Platform</span></span>
         </div>
       </div>
 
       <!-- Search Bar -->
       <div class="px-2 sm:px-4 mt-2 sm:mt-6">
         <input v-model="searchQuery" type="search" placeholder="Search"
-               class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm"/>
+          class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
       </div>
 
       <!-- Menu Items -->
       <nav class="mt-3 sm:mt-6">
         <template v-for="(item, index) in filteredMenuItems" :key="index">
           <router-link :to="item.path"
-                       class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-            <component :is="item.icon" class="w-5 h-5"/>
+            class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
+            <component :is="item.icon" class="w-5 h-5" />
             <span class="ml-3">{{ item.name }}</span>
           </router-link>
         </template>
@@ -40,16 +41,8 @@
           </div>
           <div class="flex items-center space-x-4">
             <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
-              <img
-                v-if="shop.logo"
-                :src="shop.logo"
-                alt="Shop Logo"
-                class="w-full h-full object-cover"/>
-              <img
-                v-else
-                src="/avatar-placeholder.png"
-                alt="Default Logo"
-                class="w-full h-full object-cover"/>
+              <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
+              <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
             </router-link>
           </div>
         </div>
@@ -64,13 +57,8 @@
           <div class="flex justify-between items-center mb-4">
             <!-- Search Bar -->
             <div class="mb-6 w-1/2">
-              <input
-                type="text"
-                v-model="customerSearchQuery"
-                @input="searchCustomers"
-                class="p-2 w-full border rounded-md"
-                placeholder="Type name or phone and press Enter"
-              />
+              <input type="text" v-model="customerSearchQuery" @input="searchCustomers"
+                class="p-2 w-full border rounded-md" placeholder="Type name or phone and press Enter" />
             </div>
             <!-- Create Customer Button -->
             <button @click="openCreateModal" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">
@@ -83,29 +71,29 @@
           <div class="overflow-x-auto bg-white rounded-lg shadow-md" v-if="!loading && !error && customers.length > 0">
             <table class="min-w-full table-auto">
               <thead>
-              <tr class="bg-gray-100 text-left">
-                <th class="px-4 py-2">Name</th>
-                <th class="px-4 py-2">Phone</th>
-                <th class="px-4 py-2">NID</th>
-                <th class="px-4 py-2">Address</th>
-                <th class="px-4 py-2">Wallet Balance</th>
-                <th class="px-4 py-2">Actions</th>
-              </tr>
+                <tr class="bg-gray-100 text-left">
+                  <th class="px-4 py-2">Name</th>
+                  <th class="px-4 py-2">Phone</th>
+                  <th class="px-4 py-2">NID</th>
+                  <th class="px-4 py-2">Address</th>
+                  <th class="px-4 py-2">Wallet Balance</th>
+                  <th class="px-4 py-2">Actions</th>
+                </tr>
               </thead>
               <tbody>
-              <tr v-for="customer in paginatedCustomers" :key="customer.id"
-                  :class="{'bg-red-100': customer.status === 'blocked', 'bg-yellow-100': customer.status === 'suspicious'}">
-                <td class="px-4 py-2">{{ customer.name }}</td>
-                <td class="px-4 py-2">{{ customer.phone }}</td>
-                <td class="px-4 py-2">{{ customer.nid }}</td>
-                <td class="px-4 py-2">{{ customer.address }}</td>
-                <td class="px-4 py-2">{{ (customer.balance) }}</td>
-                <td class="px-4 py-2">
-                  <button @click="openEditModal(customer)" class="text-blue-500 hover:text-blue-700">
-                    Edit
-                  </button>
-                </td>
-              </tr>
+                <tr v-for="customer in paginatedCustomers" :key="customer.id"
+                  :class="{ 'bg-red-100': customer.status === 'blocked', 'bg-yellow-100': customer.status === 'suspicious' }">
+                  <td class="px-4 py-2">{{ customer.name }}</td>
+                  <td class="px-4 py-2">{{ customer.phone }}</td>
+                  <td class="px-4 py-2">{{ customer.nid }}</td>
+                  <td class="px-4 py-2">{{ customer.address }}</td>
+                  <td class="px-4 py-2">{{ (customer.balance) }}</td>
+                  <td class="px-4 py-2">
+                    <button @click="openEditModal(customer)" class="text-blue-500 hover:text-blue-700">
+                      Edit
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -126,49 +114,68 @@
           </div>
 
           <!-- Pagination -->
-          <div class="mt-4 flex justify-center space-x-4" v-if="!loading && !error && customers.length > 0">
+          <div class="mt-4 flex justify-center items-center space-x-4"
+            v-if="!loading && !error && customers.length > 0">
             <button @click="previousPage" :disabled="currentPage <= 1"
-                    class="px-4 py-2 border rounded-md text-white bg-blue-500 hover:bg-blue-700 disabled:opacity-50">
+              class="px-4 py-2 border rounded-md text-white bg-blue-500 hover:bg-blue-700 disabled:opacity-50">
               Previous
             </button>
-            <span class="mx-2">Page {{ currentPage }} of {{ totalPages }}</span>
+
+            <div class="flex items-center space-x-2">
+              <span class="mx-2">
+                Page {{ currentPage }} of {{ totalPages }}
+              </span>
+              <span class="text-gray-500">
+                (Total items: {{ totalItems }})
+              </span>
+            </div>
+
             <button @click="nextPage" :disabled="currentPage >= totalPages"
-                    class="px-4 py-2 border rounded-md text-white bg-blue-500 hover:bg-blue-700 disabled:opacity-50">
+              class="px-4 py-2 border rounded-md text-white bg-blue-500 hover:bg-blue-700 disabled:opacity-50">
               Next
             </button>
+
+            <!-- Optional: Add items per page selector -->
+            <select v-model="itemsPerPage" class="ml-4 px-2 py-1 border rounded-md">
+              <option :value="10">10 per page</option>
+              <option :value="20">20 per page</option>
+              <option :value="50">50 per page</option>
+            </select>
           </div>
         </div>
 
       </main>
 
       <!-- Create/Edit Customer Modal -->
-      <div v-if="showModal" class="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
+      <div v-if="showModal"
+        class="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
         <div class="bg-white p-6 rounded-md shadow-md w-96">
           <h2 class="text-2xl font-semibold mb-4">{{ editingCustomer ? 'Edit Customer' : 'Create Customer' }}</h2>
 
           <div class="mb-4">
             <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
-            <input type="text" id="name" v-model="modalCustomer.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <input type="text" id="name" v-model="modalCustomer.name"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           </div>
           <div class="mb-4">
             <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Phone:</label>
-            <input type="text" id="phone" v-model="modalCustomer.phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <input type="text" id="phone" v-model="modalCustomer.phone"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           </div>
           <div class="mb-4">
             <label for="nid" class="block text-gray-700 text-sm font-bold mb-2">NID:</label>
-            <input type="text" id="nid" v-model="modalCustomer.nid" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <input type="text" id="nid" v-model="modalCustomer.nid"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           </div>
           <div class="mb-4">
             <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Address:</label>
-            <input type="text" id="address" v-model="modalCustomer.address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <input type="text" id="address" v-model="modalCustomer.address"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           </div>
           <div class="mb-4">
             <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role:</label>
-            <select
-              id="role"
-              v-model="modalCustomer.role"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
+            <select id="role" v-model="modalCustomer.role"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
               <option value="customer">Customer</option>
               <!-- <option value="user">User</option>
               <option value="admin">Admin</option> -->
@@ -176,13 +183,16 @@
           </div>
           <div class="mb-4">
             <label for="walletBalance" class="block text-gray-700 text-sm font-bold mb-2">Wallet Balance:</label>
-            <input type="number" id="walletBalance" v-model="modalCustomer.walletBalance" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <input type="number" id="walletBalance" v-model="modalCustomer.walletBalance"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           </div>
 
 
           <div class="flex justify-end">
-            <button @click="closeModal" class="bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 mr-2">Cancel</button>
-            <button @click="saveCustomer" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700">Save</button>
+            <button @click="closeModal"
+              class="bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 mr-2">Cancel</button>
+            <button @click="saveCustomer"
+              class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700">Save</button>
           </div>
         </div>
       </div>
@@ -191,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 // Menu items definition
 const menuItems = [
@@ -242,6 +252,11 @@ const modalCustomer = ref({
   role: 'customer' // Add default role
 });
 
+// Update these refs for pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalItems = ref(0);
+const lastPage = ref(1);
 
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
@@ -253,11 +268,11 @@ onMounted(() => {
 });
 
 // Fetch customers from API
-const fetchCustomers = async () => {
+const fetchCustomers = async (page = 1) => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await fetch('https://apexdrive365.com/api/users', {
+    const response = await fetch(`https://apexdrive365.com/api/users?page=${page}&limit=${itemsPerPage.value}`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
         'Accept': 'application/json',
@@ -269,8 +284,19 @@ const fetchCustomers = async () => {
     }
 
     const data = await response.json();
-    if (data.success && data.data && data.data.result) {
+    if (data.success && data.data) {
       customers.value = data.data.result;
+      totalItems.value = data.data.meta.total;
+      lastPage.value = Math.ceil(data.data.meta.total / itemsPerPage.value);
+      currentPage.value = parseInt(data.data.meta.page);
+
+      // Debug log
+      console.log('Pagination Info:', {
+        currentPage: currentPage.value,
+        totalPages: lastPage.value,
+        totalItems: totalItems.value,
+        itemsPerPage: itemsPerPage.value
+      });
     } else {
       throw new Error('Failed to fetch customers');
     }
@@ -289,43 +315,35 @@ const filteredCustomers = computed(() => {
   const searchTerm = customerSearchQuery.value.toLowerCase();
   return customers.value.filter(customer => {
     const name = customer.name ? customer.name.toLowerCase() : '';
-    const phone = customer.phone ? customer.phone.toLowerCase() : ''; 
-    return name.includes(searchTerm) || phone.includes(searchTerm); 
+    const phone = customer.phone ? customer.phone.toLowerCase() : '';
+    return name.includes(searchTerm) || phone.includes(searchTerm);
   });
 });
 
 // Pagination functionality
-const currentPage = ref(1)
-const itemsPerPage = 10
-const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / itemsPerPage))
+const totalPages = computed(() => lastPage.value);
 
-const paginatedCustomers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredCustomers.value.slice(start, end)
-})
+const paginatedCustomers = computed(() => customers.value);
 
-const previousPage = () => {
+const previousPage = async () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    console.log('Moving to previous page:', currentPage.value - 1);
+    await fetchCustomers(currentPage.value - 1);
   }
-}
+};
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
+const nextPage = async () => {
+  if (currentPage.value < lastPage.value) {
+    console.log('Moving to next page:', currentPage.value + 1);
+    await fetchCustomers(currentPage.value + 1);
   }
-}
+};
 
-// Format currency for wallet balance
-const formatCurrency = (value) => {
-  return `$${value ? value.toFixed(2) : '0.00'}`
-}
-
-// Search functionality
-const searchCustomers = () => {
-  
-}
+// Add a watcher for itemsPerPage changes
+watch(itemsPerPage, async (newValue) => {
+  console.log('Items per page changed to:', newValue);
+  await fetchCustomers(1); // Reset to first page when changing items per page
+});
 
 // Update the openCreateModal function
 const openCreateModal = () => {
@@ -336,7 +354,7 @@ const openCreateModal = () => {
     nid: '',
     address: '',
     walletBalance: 0,
-    role: 'customer' 
+    role: 'customer'
   };
   showModal.value = true;
 };
