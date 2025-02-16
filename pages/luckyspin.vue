@@ -333,7 +333,7 @@ const formatDateTime = (timestamp) => {
 };
 
 
-const submitCooldownTimes = () => {
+const submitCooldownTimes = async () => {
   // Clear any existing timers
 
   spinTimers.value.forEach(timer => clearTimeout(timer));
@@ -390,19 +390,44 @@ const submitCooldownTimes = () => {
     scheduleMessage.value = `Scheduled ${todaySchedule.length} spin${todaySchedule.length > 1 ? 's' : ''} for today`;
   }
 
-  // create an axios post call to spinner end point
-  // send the validTimes to the server
-  const data = {
-    spin_time: validTimes,
-    rotation_points: rotationValues,
-  };
-  axios.post(`${import.meta.env.VITE_API_BASE_URL}/spinner`, { validTimes })
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    // Submit each time individually as per API requirements
+    for (const time of validTimes) {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/spinner`,
+        {
+          spin_time: `${time}:00`, // Add seconds to match API format
+          rotation_point: "7" // Default rotation point as required by API
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        console.log('Spin time scheduled:', time);
+      }
+    }
+
+    // After all times are submitted, update local state
+    scheduleMessage.value = `Successfully scheduled ${validTimes.length} spin(s)`;
+
+    // Fetch updated spinner data
+    await fetchSpinnerItems();
+
+  } catch (error) {
+    console.error('Error scheduling spins:', error);
+    scheduleMessage.value = "Error scheduling spins. Please try again.";
+  }
 };
 
 const scheduleAllSpins = (times) => {
