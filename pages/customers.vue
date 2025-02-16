@@ -296,7 +296,7 @@ const filteredCustomers = computed(() => {
 
 // Pagination functionality
 const currentPage = ref(1)
-const itemsPerPage = 5
+const itemsPerPage = 10
 const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / itemsPerPage))
 
 const paginatedCustomers = computed(() => {

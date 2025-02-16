@@ -114,14 +114,12 @@
                   <svg viewBox="0 0 100 100" class="absolute w-full h-full">
                     <g v-for="(item, index) in items" :key="index"
                       :transform="`rotate(${(360 / items.length) * index}, 50, 50)`">
-
                       <path :d="`M50,50 L100,50 A50,50 0 0,1 50,0 Z`"
                         :fill="index % 2 === 0 ? 'rgba(147, 51, 234, 0.9)' : 'rgba(219, 39, 119, 0.9)'"
                         stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
                       <text x="72" y="28" text-anchor="middle" transform="rotate(90, 72, 28)"
                         class="text-[8px] fill-white font-medium" style="font-size: 6px;">{{ item.value }}
                       </text>
-
                     </g>
                   </svg>
                 </div>
@@ -204,7 +202,7 @@ const spinTimers = ref([]);
 const remainingSpins = ref(0);
 const dailySchedule = ref([]);
 const countdownInterval = ref(null);
-const items = ref(["Item-1", "Item-2", "Item-3", "Item-4", "Item-5", "Item-6", "Item-7", "Item-8"]);
+const items = ref([]);
 const rotation = ref(0);
 const spinning = ref(false);
 const selectedItem = ref(null);
@@ -212,6 +210,7 @@ const selectedRotation = ref(0);
 const selectedRotationIndex = ref(0);
 const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
 const spinners = ref([]);
+const currentSpinIndex = ref(0);
 
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
@@ -220,14 +219,6 @@ onMounted(() => {
   }
 
   fetchSpinnerItems();
-  console.log('Items:', items.value);
-
-
-  console.log(items.value)
-  const savedItems = localStorage.getItem("items");
-  if (savedItems) {
-    items.value = JSON.parse(savedItems);
-  }
 
   // Load time strings first
   const savedTimeStrings = localStorage.getItem("cooldown_time_strings");
@@ -242,10 +233,10 @@ onMounted(() => {
     const parsedTimes = JSON.parse(savedTimes);
     if (parsedTimes.length > 0) {
       // Filter out past times
-      const validTimes = parsedTimes.filter(time => time > Date.now());
+      const validTimes = parsedTimes.filter(item => item.time > Date.now());
 
       if (validTimes.length > 0) {
-        nextSpinTime.value = validTimes[0];
+        nextSpinTime.value = validTimes[0].time;
         remainingSpins.value = validTimes.length;
 
         // Update localStorage with filtered times
@@ -267,7 +258,6 @@ onMounted(() => {
     }
   }
 });
-
 
 const fetchSpinnerItems = async () => {
   try {
@@ -291,7 +281,6 @@ const fetchSpinnerItems = async () => {
   }
 };
 
-
 const openEditModal = (index) => {
   selectedItemIndex.value = index;
   newItemName.value = items.value[index].value;
@@ -303,15 +292,10 @@ const closeModal = () => {
   newItemName.value = '';
 };
 
-
 const saveItemName = () => {
   if (selectedItemIndex.value !== null && newItemName.value.trim() !== '') {
     items.value[selectedItemIndex.value].value = newItemName.value;
-    // localStorage.setItem("items", JSON.stringify(items.value));
-
-    // items.value[index].value = newItemName.value;
     sendItemsToServer();
-    // fetchSpinnerItems();
     closeModal();
   }
 };
@@ -332,64 +316,8 @@ const formatDateTime = (timestamp) => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' on ' + date.toLocaleDateString();
 };
 
-
+// Update the submitCooldownTimes function to handle time format correctly
 const submitCooldownTimes = async () => {
-  // Clear any existing timers
-
-  spinTimers.value.forEach(timer => clearTimeout(timer));
-  spinTimers.value = [];
-
-  if (countdownInterval.value) {
-    clearInterval(countdownInterval.value);
-  }
-
-  // Filter out empty time entries
-  const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
-
-  if (validTimes.length === 0) {
-    scheduleMessage.value = "Please add at least one valid time";
-    return;
-  }
-
-  // Calculate all spin times for today
-  const now = new Date();
-  let todaySchedule = [];
-
-  validTimes.forEach(timeString => {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    const spinTime = new Date(now);
-    spinTime.setHours(hours, minutes, 0, 0);
-
-    // If time has already passed today, schedule for tomorrow
-    if (spinTime <= now) {
-      spinTime.setDate(spinTime.getDate() + 1);
-    }
-
-    todaySchedule.push(spinTime.getTime());
-  });
-
-  // Sort times chronologically
-  todaySchedule.sort((a, b) => a - b);
-
-  // Store the original time strings and the calculated schedule
-  localStorage.setItem("cooldown_time_strings", JSON.stringify(validTimes));
-  localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(todaySchedule));
-
-  // Keep the daily schedule for reference
-  dailySchedule.value = validTimes;
-
-  // Set next spin time and start countdown
-  if (todaySchedule.length > 0) {
-    nextSpinTime.value = todaySchedule[0];
-    remainingSpins.value = todaySchedule.length;
-    startCountdown();
-
-    // Schedule all spins
-    scheduleAllSpins(todaySchedule);
-
-    scheduleMessage.value = `Scheduled ${todaySchedule.length} spin${todaySchedule.length > 1 ? 's' : ''} for today`;
-  }
-
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -397,13 +325,28 @@ const submitCooldownTimes = async () => {
       return;
     }
 
-    // Submit each time individually as per API requirements
+    const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
+    if (validTimes.length === 0) {
+      scheduleMessage.value = "Please add at least one valid time";
+      return;
+    }
+
+    // Create new schedules with proper time format
     for (const time of validTimes) {
+      // Generate random index between 0-7
+      const randomIndex = Math.floor(Math.random() * 8);
+
+      // Convert 24-hour format to 12-hour format with AM/PM
+      const [hours, minutes] = time.split(':').map(Number);
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12;
+      const formattedTime = `${formattedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00 ${period}`;
+
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/spinner`,
         {
-          spin_time: `${time}:00`, // Add seconds to match API format
-          rotation_point: "7" // Default rotation point as required by API
+          spin_time: formattedTime,
+          rotation_point: randomIndex.toString()
         },
         {
           headers: {
@@ -414,15 +357,37 @@ const submitCooldownTimes = async () => {
       );
 
       if (response.data.success) {
-        console.log('Spin time scheduled:', time);
+        console.log(`API Schedule Created - Time: ${formattedTime}, Index: ${randomIndex}`);
+        console.log('API Response:', response.data);
       }
     }
 
-    // After all times are submitted, update local state
-    scheduleMessage.value = `Successfully scheduled ${validTimes.length} spin(s)`;
+    // Verify the update
+    const verifyResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/spinner`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-    // Fetch updated spinner data
-    await fetchSpinnerItems();
+    if (verifyResponse.data.success) {
+      console.log('Current API Schedule:', verifyResponse.data.data.spinner);
+      spinners.value = verifyResponse.data.data.spinner;
+
+      // Update local state
+      const scheduleWithIndices = verifyResponse.data.data.spinner.map(s => ({
+        time: new Date(s.spin_time_with_today_date).getTime(),
+        index: parseInt(s.rotation_point)
+      }));
+
+      localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(scheduleWithIndices));
+
+      if (scheduleWithIndices.length > 0) {
+        nextSpinTime.value = scheduleWithIndices[0].time;
+        remainingSpins.value = scheduleWithIndices.length;
+        startCountdown();
+        scheduleAllSpins(scheduleWithIndices);
+      }
+
+      scheduleMessage.value = `Successfully scheduled ${validTimes.length} spin(s)`;
+    }
 
   } catch (error) {
     console.error('Error scheduling spins:', error);
@@ -430,41 +395,36 @@ const submitCooldownTimes = async () => {
   }
 };
 
-const scheduleAllSpins = (times) => {
-  times.forEach(time => {
+const scheduleAllSpins = (schedule) => {
+  schedule.forEach(({ time, index }) => {
     const delay = time - Date.now();
     if (delay > 0) {
       const timer = setTimeout(() => {
-        spin();
+        // Use the random pre-determined index for this spin
+        spin(index);
 
-        // Decrease remaining spins count
         remainingSpins.value--;
 
         // Remove this time from the schedule
-        const remainingTimes = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
-          .filter(t => t > Date.now());
-        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(remainingTimes));
+        const remainingSchedule = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
+          .filter(item => item.time > Date.now());
+        localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(remainingSchedule));
 
-        // Update UI based on remaining spins
-        if (remainingTimes.length === 0) {
-          // No more spins today
+        if (remainingSchedule.length === 0) {
           nextSpinTime.value = null;
           scheduleMessage.value = "No more spins remaining today";
           countdown.value = "Set your spin schedule";
-          // Clear the countdown interval
           if (countdownInterval.value) {
             clearInterval(countdownInterval.value);
             countdownInterval.value = null;
           }
         } else {
-          // Update next spin time
-          nextSpinTime.value = remainingTimes[0];
+          nextSpinTime.value = remainingSchedule[0].time;
           startCountdown();
         }
       }, delay);
 
       spinTimers.value.push(timer);
-      console.log('Scheduled spin at:', spinTimers.value);
     }
   });
 };
@@ -494,24 +454,30 @@ const startCountdown = () => {
   }, 1000);
 };
 
-
-
-
-const spin = () => {
+// Update the spin function to use the stored index
+const spin = async (predeterminedIndex = null) => {
   if (spinning.value) return;
-
   spinning.value = true;
 
-  // Generate a new random rotation
-  const randomIndex = Math.floor(Math.random() * rotationValues.length);
-  selectedRotation.value = rotationValues[randomIndex];
-  selectedRotationIndex.value = randomIndex;
-  rotation.value = selectedRotation.value;
+  try {
+    // Use the predetermined index from schedule
+    const index = predeterminedIndex !== null ? predeterminedIndex : Math.floor(Math.random() * 8);
 
-  setTimeout(() => {
+    selectedRotation.value = rotationValues[index];
+    selectedRotationIndex.value = index;
+    rotation.value = selectedRotation.value;
+
+    // Log the winning item
+    console.log(`Spinning with index: ${index}, Item: ${items.value[index]?.value}`);
+
+    setTimeout(() => {
+      spinning.value = false;
+      selectedItem.value = items.value[selectedRotationIndex.value];
+    }, 3000);
+  } catch (error) {
+    console.error('Error during spin:', error);
     spinning.value = false;
-    selectedItem.value = items.value[selectedRotationIndex.value];
-  }, 3000);
+  }
 };
 
 const sendItemsToServer = async () => {
@@ -561,14 +527,12 @@ const sendItemsToServer = async () => {
   animation: twinkle 2s infinite;
 }
 
-/* Enhanced text styling */
 .text-sm {
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.025em;
 }
 
-/* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -589,7 +553,6 @@ const sendItemsToServer = async () => {
   background: rgba(147, 51, 234, 0.7);
 }
 
-/* Transitions */
 .transition-transform {
   transition: transform 0.3s ease;
 }
@@ -600,12 +563,10 @@ const sendItemsToServer = async () => {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-/* Glass effect */
 .backdrop-blur-md {
   backdrop-filter: blur(12px);
 }
 
-/* Additional animations */
 @keyframes glow {
 
   0%,
