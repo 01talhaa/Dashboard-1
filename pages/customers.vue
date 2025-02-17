@@ -61,7 +61,7 @@
                 class="p-2 w-full border rounded-md" placeholder="Type name or phone and press Enter" />
             </div>
             <!-- Create Customer Button -->
-            <button @click="openCreateModal" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">
+            <button @click="openCreateModal" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Create Customer
             </button>
           </div>
