@@ -56,12 +56,52 @@
 
           <div class="flex justify-between items-center mb-4">
             <!-- Search Bar -->
-            <div class="mb-6 w-1/2">
-              <input type="text" v-model="customerSearchQuery" @input="searchCustomers"
-                class="p-2 w-full border rounded-md" placeholder="Type name or phone and press Enter" />
+            <div class="mb-6 flex space-x-4">
+              <div class="w-32">
+                <select v-model="searchColumn" class="w-full p-2 border rounded-md">
+                  <option value="name">Name</option>
+                  <option value="phone">Phone</option>
+                  <option value="nid">NID</option>
+                  <!-- <option value="address">Address</option> -->
+                </select>
+              </div>
+
+              <div class="flex-1 flex space-x-2">
+                <div class="relative flex-1">
+                  <input type="text" v-model="customerSearchQuery" @keyup.enter="performSearch"
+                    class="w-full p-2 border rounded-md pr-10" :placeholder="`Search by ${searchColumn}...`">
+                  <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg v-if="loading" class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                      fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                      </path>
+                    </svg>
+                  </div>
+                </div>
+
+                <button @click="performSearch"
+                  class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  :disabled="loading">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search
+                </button>
+
+                <button @click="clearSearch"
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                  :disabled="loading">
+                  Clear
+                </button>
+              </div>
             </div>
             <!-- Create Customer Button -->
-            <button @click="openCreateModal" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button @click="openCreateModal"
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Create Customer
             </button>
           </div>
@@ -281,6 +321,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { debounce } from 'lodash'; // Import debounce function
 
 // Menu items definition
 const menuItems = [
@@ -322,8 +363,14 @@ const customers = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
-// Reactive search query for customers
+// Update these refs
 const customerSearchQuery = ref('');
+const searchColumn = ref('name'); // Default search column
+
+// Debounce the search function
+const debouncedSearch = debounce(async () => {
+  await performSearch();
+}, 300); // Adjust the debounce delay as needed (in milliseconds)
 
 // Modal state
 const showModal = ref(false);
@@ -408,18 +455,6 @@ const fetchCustomers = async (page = 1) => {
   }
 };
 
-// Filter customers based on search query
-const filteredCustomers = computed(() => {
-  if (!customerSearchQuery.value) return customers.value
-
-  const searchTerm = customerSearchQuery.value.toLowerCase();
-  return customers.value.filter(customer => {
-    const name = customer.name ? customer.name.toLowerCase() : '';
-    const phone = customer.phone ? customer.phone.toLowerCase() : '';
-    return name.includes(searchTerm) || phone.includes(searchTerm);
-  });
-});
-
 // Pagination functionality
 const totalPages = computed(() => lastPage.value);
 
@@ -433,7 +468,7 @@ const previousPage = async () => {
 };
 
 const nextPage = async () => {
-  if (currentPage.value < lastPage.value) {
+  if (currentPage.value < totalPages.value) {
     console.log('Moving to next page:', currentPage.value + 1);
     await fetchCustomers(currentPage.value + 1);
   }
@@ -567,6 +602,65 @@ const saveCustomer = async () => {
     loading.value = false;
   }
 };
+
+// Add these new functions to your script
+const performSearch = async () => {
+  if (!customerSearchQuery.value.trim()) {
+    fetchCustomers();
+    return;
+  }
+
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const token = getToken();
+    const response = await fetch(
+      `https://apexdrive365.com/api/users?where=${searchColumn.value},${customerSearchQuery.value.trim()}&page=${currentPage.value}&limit=${itemsPerPage.value}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+      throw new Error('Session expired. Please login again.');
+    }
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      customers.value = data.data.result;
+      totalItems.value = data.data.meta.total;
+      lastPage.value = Math.ceil(data.data.meta.total / itemsPerPage.value);
+      currentPage.value = parseInt(data.data.meta.page);
+
+      console.log('Search results:', {
+        query: customerSearchQuery.value,
+        column: searchColumn.value,
+        results: customers.value.length
+      });
+    }
+  } catch (err) {
+    error.value = err.message;
+    console.error('Search error:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const clearSearch = async () => {
+  customerSearchQuery.value = '';
+  await fetchCustomers(1);
+};
+
+// Watch the search query and trigger the debounced search
+watch(customerSearchQuery, () => {
+  debouncedSearch();
+});
 </script>
 
 <style scoped>
