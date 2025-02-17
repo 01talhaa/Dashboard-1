@@ -321,7 +321,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { debounce } from 'lodash'; // Import debounce function
+import { debounce } from 'lodash-es';
 
 // Menu items definition
 const menuItems = [
