@@ -248,9 +248,6 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const toastStatus = ref('');
 
-// API token
-const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYXBleGRyaXZlMzY1LmNvbS9hcGkvYXV0aC9sb2dpbiIsImlhdCI6MTczOTU2OTgxNiwiZXhwIjoxNzM5NzQyNjE2LCJuYmYiOjE3Mzk1Njk4MTYsImp0aSI6IktZUFlZT2VlY0lRMzRDYnciLCJzdWIiOiIxIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImVtYWlsIjoiYWRtaW5AZGVtby5jb20iLCJuYW1lIjoiQWRtaW4iLCJyb2xlIjpbImFkbWluIl19.5emS3KY69tO3JzWDCk5c7F89JvtSLgXOxIR9WtYkvIw';
-
 // Menu configuration
 const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
@@ -291,38 +288,43 @@ const fetchCustomers = async (page = 1) => {
   error.value = null;
 
   try {
+    // Get the token from localStorage instead of using a hardcoded one
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const response = await fetch(`https://apexdrive365.com/api/withdraws?page=${page}`, {
       headers: {
-        'Authorization': `Bearer ${apiToken}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${token}`, // Use the token from localStorage
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
+
+    if (response.status === 401) {
+      // Handle unauthorized error
+      localStorage.removeItem('token'); // Clear invalid token
+      window.location.href = '/'; // Redirect to login page
+      throw new Error('Session expired. Please login again.');
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('API Response:', data); // Debug log
 
     if (data.success) {
-      // Update state with API data
       customers.value = data.data.result;
       currentPage.value = parseInt(data.data.meta.page);
       totalItems.value = parseInt(data.data.meta.total);
       lastPage.value = parseInt(data.data.meta.totalPage);
       itemsPerPage.value = parseInt(data.data.meta.limit);
-
-      console.log('Pagination State:', {
-        page: currentPage.value,
-        total: totalItems.value,
-        lastPage: lastPage.value,
-        limit: itemsPerPage.value,
-        results: customers.value.length
-      });
     }
   } catch (err) {
-    error.value = `Failed to fetch withdrawals: ${err.message}`;
+    error.value = err.message;
     console.error('Error:', err);
   } finally {
     loading.value = false;
@@ -367,22 +369,33 @@ const showToastMessage = (message, status) => {
 
 // Update customer status (client-side only since the API endpoint doesn't exist)
 const updateStatus = async (customer) => {
+  try {
+    const token = localStorage.getItem('token');
 
-  const response = await fetch(`https://apexdrive365.com/api/withdraws/${customer.id}/approve`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiToken}`
+    if (!token) {
+      throw new Error('No authentication token found');
     }
-  });
-  // if (!response.status) {
-  //   throw new Error(response.message, 'false');
-  // } else {
-  //   showToastMessage(response.message, 'success');
-  // }
 
-  showToastMessage(`Status updated to ${customer.status}`, customer.status);
+    const response = await fetch(`https://apexdrive365.com/api/withdraws/${customer.id}/approve`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+      throw new Error('Session expired. Please login again.');
+    }
+
+    const data = await response.json();
+    showToastMessage(data.message || `Status updated to ${customer.status}`, customer.status);
+  } catch (err) {
+    showToastMessage(err.message, 'error');
+  }
 };
 
 // Lifecycle
