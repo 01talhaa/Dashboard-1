@@ -110,7 +110,7 @@
                 <!-- Wheel -->
                 <div
                   class="w-full h-full rounded-full border-4 border-white/20 shadow-2xl relative overflow-hidden transform hover:scale-102 transition-transform duration-300"
-                  :style="{ transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 3s cubic-bezier(0.4, 2, 0.55, 1)' : 'none' }">
+                  :style="{ transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 5s cubic-bezier(0.19, 0.94, 0.32, 1)' : 'none' }">
                   <svg viewBox="0 0 100 100" class="absolute w-full h-full">
                     <g v-for="(item, index) in items" :key="index"
                       :transform="`rotate(${(360 / items.length) * index}, 50, 50)`">
@@ -130,7 +130,7 @@
             <div v-if="selectedItem"
               class="mt-6 text-center p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl backdrop-blur-sm border border-white/10">
               <h3 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300">
-                You won: {{ items[selectedRotationIndex].value }}! 🎉
+                You won: {{ selectedItem.value }}! 🎉
               </h3>
             </div>
           </div>
@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
 const menuItems = [
@@ -193,6 +193,8 @@ const isModalOpen = ref(false);
 const selectedItemIndex = ref(null);
 const newItemName = ref('');
 const COOLDOWN_TIMES_KEY = "scheduled_cooldown_times";
+const LAST_SPIN_ROTATION_KEY = "last_spin_rotation";
+const COUNTDOWN_DATA_KEY = "countdown_data";
 const cooldownTimes = ref([""]);
 const countdown = ref("Set your spin schedule");
 const shop = ref({ name: "", logo: "" });
@@ -204,13 +206,30 @@ const dailySchedule = ref([]);
 const countdownInterval = ref(null);
 const items = ref([]);
 const rotation = ref(0);
+const lastRotation = ref(0);  // Store the last rotation value
 const spinning = ref(false);
 const selectedItem = ref(null);
 const selectedRotation = ref(0);
 const selectedRotationIndex = ref(0);
-const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160];
 const spinners = ref([]);
+const rotationValues = [2475, 2430, 2385, 2340, 2295, 2250, 2205, 2160]; // Fixed rotation values
 const currentSpinIndex = ref(0);
+
+// Function to save countdown data to localStorage
+const saveCountdownData = () => {
+  const countdownData = {
+    nextSpinTime: nextSpinTime.value,
+    remainingSpins: remainingSpins.value,
+    scheduleMessage: scheduleMessage.value,
+    countdown: countdown.value,
+  };
+  localStorage.setItem(COUNTDOWN_DATA_KEY, JSON.stringify(countdownData));
+};
+
+// Function to save last rotation to localStorage
+const saveLastRotation = () => {
+  localStorage.setItem(LAST_SPIN_ROTATION_KEY, lastRotation.value.toString());
+};
 
 onMounted(() => {
   const savedShop = localStorage.getItem("shopData");
@@ -218,7 +237,24 @@ onMounted(() => {
     shop.value = JSON.parse(savedShop);
   }
 
+  // Load the last rotation from localStorage
+  const savedRotation = localStorage.getItem(LAST_SPIN_ROTATION_KEY);
+  if (savedRotation) {
+    lastRotation.value = parseInt(savedRotation);
+    rotation.value = lastRotation.value;
+  }
+
   fetchSpinnerItems();
+
+  // Load countdown data from localStorage
+  const savedCountdownData = localStorage.getItem(COUNTDOWN_DATA_KEY);
+  if (savedCountdownData) {
+    const data = JSON.parse(savedCountdownData);
+    nextSpinTime.value = data.nextSpinTime;
+    remainingSpins.value = data.remainingSpins;
+    scheduleMessage.value = data.scheduleMessage;
+    countdown.value = data.countdown;
+  }
 
   // Load time strings first
   const savedTimeStrings = localStorage.getItem("cooldown_time_strings");
@@ -241,6 +277,7 @@ onMounted(() => {
 
         // Update localStorage with filtered times
         localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify(validTimes));
+        saveCountdownData();
 
         // Start countdown and schedule spins
         startCountdown();
@@ -251,12 +288,24 @@ onMounted(() => {
         remainingSpins.value = 0;
         scheduleMessage.value = "No more spins remaining today";
         countdown.value = "Set your spin schedule";
+        saveCountdownData();
 
         // Clear localStorage of today's schedule but keep the time strings
         localStorage.setItem(COOLDOWN_TIMES_KEY, JSON.stringify([]));
       }
     }
+  } else if (nextSpinTime.value) {
+    // If there are no saved times but we have nextSpinTime, start countdown
+    startCountdown();
   }
+});
+
+onUnmounted(() => {
+  // Clear all timers when component is unmounted
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value);
+  }
+  spinTimers.value.forEach(timer => clearTimeout(timer));
 });
 
 const fetchSpinnerItems = async () => {
@@ -302,11 +351,13 @@ const saveItemName = () => {
 
 const addCooldownTime = () => {
   cooldownTimes.value.push("");
+  localStorage.setItem("cooldown_time_strings", JSON.stringify(cooldownTimes.value));
 };
 
 const removeCooldownTime = (index) => {
   if (cooldownTimes.value.length > 1) {
     cooldownTimes.value.splice(index, 1);
+    localStorage.setItem("cooldown_time_strings", JSON.stringify(cooldownTimes.value));
   }
 };
 
@@ -328,6 +379,7 @@ const submitCooldownTimes = async () => {
     const validTimes = cooldownTimes.value.filter(time => time.trim() !== "");
     if (validTimes.length === 0) {
       scheduleMessage.value = "Please add at least one valid time";
+      saveCountdownData();
       return;
     }
 
@@ -362,6 +414,9 @@ const submitCooldownTimes = async () => {
       }
     }
 
+    // Save cooldown time strings
+    localStorage.setItem("cooldown_time_strings", JSON.stringify(cooldownTimes.value));
+
     // Verify the update
     const verifyResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/spinner`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -382,20 +437,27 @@ const submitCooldownTimes = async () => {
       if (scheduleWithIndices.length > 0) {
         nextSpinTime.value = scheduleWithIndices[0].time;
         remainingSpins.value = scheduleWithIndices.length;
+        saveCountdownData();
         startCountdown();
         scheduleAllSpins(scheduleWithIndices);
       }
 
       scheduleMessage.value = `Successfully scheduled ${validTimes.length} spin(s)`;
+      saveCountdownData();
     }
 
   } catch (error) {
     console.error('Error scheduling spins:', error);
     scheduleMessage.value = "Error scheduling spins. Please try again.";
+    saveCountdownData();
   }
 };
 
 const scheduleAllSpins = (schedule) => {
+  // Clear existing timers
+  spinTimers.value.forEach(timer => clearTimeout(timer));
+  spinTimers.value = [];
+
   schedule.forEach(({ time, index }) => {
     const delay = time - Date.now();
     if (delay > 0) {
@@ -404,6 +466,7 @@ const scheduleAllSpins = (schedule) => {
         spin(index);
 
         remainingSpins.value--;
+        saveCountdownData();
 
         // Remove this time from the schedule
         const remainingSchedule = JSON.parse(localStorage.getItem(COOLDOWN_TIMES_KEY) || "[]")
@@ -414,12 +477,14 @@ const scheduleAllSpins = (schedule) => {
           nextSpinTime.value = null;
           scheduleMessage.value = "No more spins remaining today";
           countdown.value = "Set your spin schedule";
+          saveCountdownData();
           if (countdownInterval.value) {
             clearInterval(countdownInterval.value);
             countdownInterval.value = null;
           }
         } else {
           nextSpinTime.value = remainingSchedule[0].time;
+          saveCountdownData();
           startCountdown();
         }
       }, delay);
@@ -436,6 +501,7 @@ const startCountdown = () => {
 
   if (!nextSpinTime.value) {
     countdown.value = "Set your spin schedule";
+    saveCountdownData();
     return;
   }
 
@@ -445,35 +511,48 @@ const startCountdown = () => {
     if (remainingTime <= 0) {
       clearInterval(countdownInterval.value);
       countdown.value = "Spinning now...";
+      saveCountdownData();
     } else {
       const hours = Math.floor(remainingTime / (1000 * 60 * 60));
       const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
       countdown.value = `Next spin in: ${hours}h ${minutes}m ${seconds}s`;
+      saveCountdownData();
     }
   }, 1000);
 };
 
-// Update the spin function to use the stored index
+// Update the spin function for better rotation
 const spin = async (predeterminedIndex = null) => {
   if (spinning.value) return;
   spinning.value = true;
 
   try {
-    // Use the predetermined index from schedule
+    // Use the predetermined index from schedule or random
     const index = predeterminedIndex !== null ? predeterminedIndex : Math.floor(Math.random() * 8);
 
-    selectedRotation.value = rotationValues[index];
+    // Calculate the target rotation based on the selected index
     selectedRotationIndex.value = index;
+    
+    // Calculate new rotation: add enough full rotations (5 * 360 = 1800 degrees) plus the target value
+    // This ensures the wheel always spins multiple full rotations before landing
+    const targetRotation = rotationValues[index];
+    selectedRotation.value = lastRotation.value + 1800 + (targetRotation - (lastRotation.value % 360));
+    
+    // Apply the rotation
     rotation.value = selectedRotation.value;
+    
+    // Store the new rotation for next time
+    lastRotation.value = selectedRotation.value;
+    saveLastRotation();
 
     // Log the winning item
-    console.log(`Spinning with index: ${index}, Item: ${items.value[index]?.value}`);
+    console.log(`Spinning with index: ${index}, Item: ${items.value[index]?.value}, Rotation: ${selectedRotation.value}`);
 
     setTimeout(() => {
       spinning.value = false;
       selectedItem.value = items.value[selectedRotationIndex.value];
-    }, 3000);
+    }, 5000); // Match the CSS transition duration
   } catch (error) {
     console.error('Error during spin:', error);
     spinning.value = false;

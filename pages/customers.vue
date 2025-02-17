@@ -296,8 +296,14 @@ const menuItems = [
   { name: "Billing", path: "/billing", icon: "BarChart" },
 ];
 
-// API token
-const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYXBleGRyaXZlMzY1LmNvbS9hcGkvYXV0aC9sb2dpbiIsImlhdCI6MTczOTU2OTgxNiwiZXhwIjoxNzM5NzQyNjE2LCJuYmYiOjE3Mzk1Njk4MTYsImp0aSI6IktZUFlZT2VlY0lRMzRDYnciLCJzdWIiOiIxIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImVtYWlsIjoiYWRtaW5AZGVtby5jb20iLCJuYW1lIjoiQWRtaW4iLCJyb2xlIjpbImFkbWluIl19.5emS3KY69tO3JzWDCk5c7F89JvtSLgXOxIR9WtYkvIw';
+// Add token handling function
+const getToken = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  return token;
+};
 
 // Reactive search query for menu items
 const searchQuery = ref("");
@@ -358,12 +364,20 @@ const fetchCustomers = async (page = 1) => {
   loading.value = true;
   error.value = null;
   try {
+    const token = getToken();
     const response = await fetch(`https://apexdrive365.com/api/users?page=${page}&limit=${itemsPerPage.value}`, {
       headers: {
-        'Authorization': `Bearer ${apiToken}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
+
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/'; // Redirect to login
+      throw new Error('Session expired. Please login again.');
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -457,13 +471,13 @@ const openEditModal = (customer) => {
     address: customer.address || '',
     walletBalance: customer.balance || 0,
     role: customer.role || 'customer',
-    password: '', // Always include password fields
+    password: '',
     password_confirmation: '',
-    change_password: false // Default to false for edit mode
+    change_password: false
   };
   showModal.value = true;
-  showPassword.value = false; // Reset password visibility
-  formErrors.value = {}; // Clear any previous errors
+  showPassword.value = false;
+  formErrors.value = {};
 };
 
 const closeModal = () => {
@@ -484,6 +498,7 @@ const closeModal = () => {
 const saveCustomer = async () => {
   loading.value = true;
   try {
+    const token = getToken();
     const apiUrl = editingCustomer.value
       ? `https://apexdrive365.com/api/users/${editingCustomer.value.id}`
       : 'https://apexdrive365.com/api/users';
@@ -512,12 +527,18 @@ const saveCustomer = async () => {
     const response = await fetch(apiUrl, {
       method: editingCustomer.value ? 'PATCH' : 'POST',
       headers: {
-        'Authorization': `Bearer ${apiToken}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
       body: JSON.stringify(requestBody),
     });
+
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+      throw new Error('Session expired. Please login again.');
+    }
 
     const data = await response.json();
     console.log('API Response:', data); // Debug log
