@@ -116,8 +116,8 @@
                   <th class="px-4 py-2">Phone</th>
                   <th class="px-4 py-2">NID</th>
                   <th class="px-4 py-2">Address</th>
-                  <th class="px-4 py-2">Wallet Balance</th>
-                  <th class="px-4 py-2">Actions</th>
+                  <!-- <th class="px-4 py-2">Wallet Balance</th> -->
+                  <th class="px-4 py-2">Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -127,7 +127,7 @@
                   <td class="px-4 py-2">{{ customer.phone }}</td>
                   <td class="px-4 py-2">{{ customer.nid }}</td>
                   <td class="px-4 py-2">{{ customer.address }}</td>
-                  <td class="px-4 py-2">{{ (customer.balance) }}</td>
+                  <!-- <td class="px-4 py-2">{{ (customer.balance) }}</td> -->
                   <td class="px-4 py-2">
                     <button @click="openEditModal(customer)" class="text-blue-500 hover:text-blue-700">
                       Edit
@@ -283,13 +283,13 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="password_confirmation" class="label-style">
+                  <!-- <label for="password_confirmation" class="label-style">
                     Confirm Password<span class="text-red-500">*</span>
-                  </label>
+                  </label> -->
                   <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" id="password_confirmation"
+                    <!-- <input :type="showPassword ? 'text' : 'password'" id="password_confirmation"
                       v-model="modalCustomer.password_confirmation" class="input-style pr-10"
-                      :class="{ 'border-red-500': formErrors.password_confirmation }" placeholder="Confirm password">
+                      :class="{ 'border-red-500': formErrors.password_confirmation }" placeholder="Confirm password"> -->
                   </div>
                 </div>
               </template>
