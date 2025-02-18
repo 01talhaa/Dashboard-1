@@ -1,64 +1,29 @@
-
+// Coupons.vue (New Main Component File)
 <template>
-    <div class="flex h-screen bg-gray-50">
-      <!-- Sidebar -->
-      <aside class="w-2/5 sm:w-64 bg-gray-900 text-white transition-all duration-300 flex-shrink-0 overflow-auto"> 
-        <div class="p-2 sm:p-4">
-          <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
-            <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
-            <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span class="text-red-500">Platform</span></span>
+  <div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <Sidebar :shop="shop" :menuItems="menuItems"/>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto transition-all duration-300">
+      <!-- Header (Sticky at Top, Outside of Main) -->
+      <header class="bg-white border-b sticky top-0 z-10">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center space-x-4">
+            <!-- Add content if necessary -->
           </div>
-        </div>
-  
-        <!-- Search Bar -->
-        <div class="px-2 sm:px-4 mt-2 sm:mt-6">
-          <input v-model="searchQuery" type="search" placeholder="Search"
-            class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
-        </div>
-  
-        <!-- Menu Items -->
-        <nav class="mt-3 sm:mt-6">
-          <template v-for="(item, index) in filteredMenuItems" :key="index">
-            <router-link :to="item.path" class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-              <component :is="item.icon" class="w-5 h-5" />
-              <span class="ml-3">{{ item.name }}</span>
+          <div class="flex items-center space-x-4">
+            <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
+              <img v-if="shop.logo" :src="shop.logo" alt="Shop Logo" class="w-full h-full object-cover" />
+              <img v-else src="/avatar-placeholder.png" alt="Default Logo" class="w-full h-full object-cover" />
             </router-link>
-          </template>
-        </nav>
-        <router-link to="/" class=" mx-7 py-80  text-red-500    text-left block">
-      Logout
-    </router-link>
-      </aside>
-  
-      <!-- Main Content -->
-      <div class="flex-1 overflow-auto transition-all duration-300">
-        <!-- Header (Sticky at Top, Outside of Main) -->
-        <header class="bg-white border-b sticky top-0 z-10">
-          <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center space-x-4">
-              <!-- Add content if necessary -->
-            </div>
-            <div class="flex items-center space-x-4">
-    <router-link to="/manageShop" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
-      <img 
-        v-if="shop.logo" 
-        :src="shop.logo" 
-        alt="Shop Logo" 
-        class="w-full h-full object-cover" />
-      <img 
-        v-else 
-        src="/avatar-placeholder.png" 
-        alt="Default Logo" 
-        class="w-full h-full object-cover" />
-    </router-link>
-    </div>
           </div>
-        </header>
-         
-        <!-- Dashboard Content -->
-        <main class="p-4 mt-0.5">
-            
-          
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <main class="p-4 mt-0.5">
+
           <div class="flex flex-col h-screen bg-gray-50">
     <!-- Header -->
     <header class="bg-white shadow-md p-4">
@@ -183,8 +148,35 @@
   
   
   <script setup>
+import { ref, computed, onMounted } from 'vue';
+import Sidebar from './Sidebar.vue';  // Import the Sidebar component
 
-import { ref, computed } from 'vue';
+// Shop data
+const shop = ref({
+  name: "",
+  logo: "",
+  // Add other properties here as needed
+});
+
+const menuItems = [
+  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
+  { name: "Products", path: "/products", icon: "Package" },
+  { name: "Orders", path: "/orders", icon: "ShoppingCart" },
+  { name: "Customers", path: "/customers", icon: "Package" },
+  { name: "Reports", path: "/reports", icon: "BarChart" },
+  { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
+  { name: "Cupon", path: "/cupon", icon: "BarChart" },
+  { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
+  { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
+  { name: "Billing", path: "/billing", icon: "BarChart" },
+  { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
+];
+onMounted(() => {
+  const savedShop = localStorage.getItem("shopData");
+  if (savedShop) {
+    shop.value = JSON.parse(savedShop); // Populate shop data from localStorage
+  }
+});
 
 // Define your coupon data (this would come from an API or localStorage in a real app)
 const coupons = ref([
@@ -252,39 +244,6 @@ const exportCoupons = () => {
   // You could trigger an export as a CSV or PDF here
   alert('Coupons exported!');
 };
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
-    { name: "Products", path: "/products", icon: "Package" },
-    { name: "Orders", path: "/orders", icon: "ShoppingCart" },
-    { name: "Customers", path: "/customers", icon: "Package" },
-    { name: "Reports", path: "/reports", icon: "BarChart" },
-    { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-    { name: "Cupon", path: "/cupon", icon: "BarChart" },
-    { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
-    { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
-    { name: "Billing", path: "/billing", icon: "BarChart" },
-  ];
-  
-  
-  // Reactive search query
-  const searchQuery = ref("");
-  const filteredMenuItems = computed(() => {
-    return menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
-  });
-  
-  const shop = ref({
-  name: "", 
-  logo: "",
-  // Add other properties here as needed
-});
-
-onMounted(() => {
-  const savedShop = localStorage.getItem("shopData");
-  if (savedShop) {
-    shop.value = JSON.parse(savedShop); // Populate shop data from localStorage
-  }
-});
-
 
   </script>
   
