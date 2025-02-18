@@ -1,35 +1,7 @@
 <template>
   <div class="flex h-screen bg-gray-50">
     <!-- Sidebar -->
-    <aside class="w-2/5 sm:w-64 bg-gray-900 text-white transition-all duration-300 flex-shrink-0 overflow-auto">
-      <div class="p-2 sm:p-4">
-        <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
-          <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
-          <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span
-              class="text-red-500">Platform</span></span>
-        </div>
-      </div>
-
-      <!-- Search Bar -->
-      <div class="px-2 sm:px-4 mt-2 sm:mt-6">
-        <input v-model="searchQuery" type="search" placeholder="Search"
-          class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
-      </div>
-
-      <!-- Menu Items -->
-      <nav class="mt-3 sm:mt-6">
-        <template v-for="(item, index) in filteredMenuItems" :key="index">
-          <router-link :to="item.path"
-            class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-            <component :is="item.icon" class="w-5 h-5" />
-            <span class="ml-3">{{ item.name }}</span>
-          </router-link>
-        </template>
-      </nav>
-      <router-link to="/" class=" mx-7 py-80  text-red-500    text-left block">
-        Logout
-      </router-link>
-    </aside>
+    <Sidebar :shop="shop" :menuItems="menuItems" />
 
     <!-- Main Content -->
     <div class="flex-1 overflow-auto transition-all duration-300">
@@ -325,7 +297,7 @@ import { debounce } from 'lodash-es';
 
 // Menu items definition
 const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
+  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   { name: "Products", path: "/products", icon: "Package" },
   { name: "Orders", path: "/orders", icon: "ShoppingCart" },
   { name: "Customers", path: "/customers", icon: "Package" },
@@ -335,6 +307,7 @@ const menuItems = [
   { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
   { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
   { name: "Billing", path: "/billing", icon: "BarChart" },
+  { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
 ];
 
 // Add token handling function
@@ -661,6 +634,7 @@ const clearSearch = async () => {
 watch(customerSearchQuery, () => {
   debouncedSearch();
 });
+import Sidebar from './Sidebar.vue';
 </script>
 
 <style scoped>
