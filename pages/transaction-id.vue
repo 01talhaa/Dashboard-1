@@ -250,7 +250,10 @@ onMounted(() => {
   const savedIds = localStorage.getItem("transactionIds");
   if (savedIds) {
     generatedIds.value = JSON.parse(savedIds);
+    console.log("t", paginatedAndFilteredIds.value);
+    console.log("t", generatedIds.value);
   }
+
 
   // Close dropdown when clicking outside
   document.addEventListener('click', closeDropdown);
@@ -305,7 +308,7 @@ watch(generatedIds, (newIds) => {
 
 // Generate random transaction ID
 const generateTransactionId = () => {
-  const timestamp = Date.now().toString();
+  const timestamp = Date.now().toString();  
   const random = Math.random().toString(36).substr(2, 5).toUpperCase();
   return `TRX-${timestamp.substr(-6)}-${random}`;
 };
@@ -322,6 +325,8 @@ const generateIds = () => {
     numberOfIds.value = "";
   }
 };
+
+
 
 // Delete a specific ID
 const deleteId = (transactionId) => {
