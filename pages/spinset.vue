@@ -2,7 +2,7 @@
     <div class="flex h-screen bg-gray-50">
       <!-- Sidebar -->
       <aside class="w-2/5 sm:w-64 bg-gray-900 text-white transition-all duration-300 flex-shrink-0 overflow-auto">
-        <div class="p-2 sm:p-4">
+        <div class="p-2 sm:p-4">  
           <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
             <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
             <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span
