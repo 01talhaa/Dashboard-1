@@ -28,8 +28,9 @@ export const useAuthStore = defineStore('auth', {
           this.user = null
         }
 
-        console.log('Token:', this.token)
+        console.log('Token:', localStorage.getItem('token'))
         console.log('User:', this.user)
+    
       }
     },
 
@@ -42,9 +43,9 @@ export const useAuthStore = defineStore('auth', {
         console.log('API Response:', response)
 
         // Save token & user info in state and localStorage after successful login
-        if (response.data?.access_token) {
-          this.token = response.data.access_token
-          this.user = response.data.user
+        if (response.data.success) {
+          this.token = response.data.data.access_token
+          this.user = response.data.data.user
 
           localStorage.setItem('token', this.token)
           localStorage.setItem('user', JSON.stringify(this.user))

@@ -1,52 +1,14 @@
 <template>
   <div class="flex h-screen bg-gray-50">
     <!-- Sidebar -->
-    <aside class="w-2/5 sm:w-64 bg-gray-900 text-white transition-all duration-300 flex-shrink-0 overflow-auto">
-      <div class="p-2 sm:p-4">
-        <div class="flex items-center gap-2 text-sm sm:text-xl font-bold">
-          <div class="w-6 sm:w-8 h-6 sm:h-8 bg-red-500 rounded-lg"></div>
-          <span class="ml-3">{{ shop.name ? shop.name + "'s" : 'ACTIVE' }}<span
-              class="text-red-500">Platform</span></span>
-
-
-        </div>
-      </div>
-
-      <!-- Search Bar -->
-      <div class="px-2 sm:px-4 mt-2 sm:mt-6">
-        <input v-model="searchQuery" type="search" placeholder="Search"
-          class="w-full px-2 sm:px-4 py-1 sm:py-2 bg-gray-800 rounded-md text-xs sm:text-sm" />
-      </div>
-
-      <!-- Menu Items -->
-      <nav class="mt-3 sm:mt-6">
-        <template v-for="(item, index) in filteredMenuItems" :key="index">
-          <router-link :to="item.path"
-            class="flex items-center px-2 sm:px-4 py-2 sm:py-3 text-gray-300 hover:bg-gray-800">
-            <component :is="item.icon" class="w-5 h-5" />
-            <span class="ml-3">{{ item.name }}</span>
-          </router-link>
-
-        </template>
-
-      </nav>
-
-
-      <router-link to="/" class=" mx-7 py-80  text-red-500    text-left block">
-        Logout
-      </router-link>
-
-
-    </aside>
+    <Sidebar :shop="shop" :menuItems="menuItems" />
 
     <!-- Main Content -->
     <div class="flex-1 overflow-auto transition-all duration-300">
-      <!-- Header (Sticky at Top, Outside of Main) -->
+      <!-- Header -->
       <header class="bg-white border-b sticky top-0 z-10">
         <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center space-x-4">
-            <!-- Add content if necessary -->
-          </div>
+          <div class="flex items-center space-x-4"></div>
           <div class="flex items-center space-x-4">
             <!-- Circle for logo image -->
             <div class="flex items-center space-x-4">
@@ -61,77 +23,78 @@
 
       <!-- Dashboard Content -->
       <main class="p-4 mt-0.5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <!-- Cards for Total Stats -->
-          <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tcustomer }}</h3>
-            <p class="text-gray-500 text-sm"><b>Total Customers</b></p>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tproduct }}</h3>
-            <p class="text-gray-500 text-sm"><b>Total Products</b></p>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tbrands }}</h3>
-            <p class="text-gray-500 text-sm"><b>Active Cupon</b></p>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Torder }}</h3>
-            <p class="text-gray-500 text-sm"><b>Total Orders</b></p>
-          </div>
-        </div>
-
-        <!-- Categories and Brands Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 ">
-          <router-link to="/categories" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
-            <h3 class="font-semibold mb-4">Top Category</h3>
-            <div class="space-y-3 overflow-auto">
-              <div v-for="category in categories" :key="category.name" class="flex justify-between">
-                <span>{{ category.name }}</span>
-                <span>${{ category.value.toLocaleString() }}</span>
-              </div>
+        <div class="container mx-auto p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Cards for Total Stats -->
+            <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
+              <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tcustomer }}</h3>
+              <p class="text-gray-500 text-sm"><b>Total Customers</b></p>
             </div>
-          </router-link>
 
-          <router-link to="/brands" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
-            <h3 class="font-semibold mb-4">Top Brands</h3>
-            <div class="space-y-3 overflow-auto">
-              <div v-for="brand in brands" :key="brand.name" class="flex justify-between">
-                <span>{{ brand.name }}</span>
-                <span>${{ brand.value.toLocaleString() }}</span>
-              </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
+              <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tproduct }}</h3>
+              <p class="text-gray-500 text-sm"><b>Total Products</b></p>
             </div>
-          </router-link>
-        </div>
 
-        <!-- Orders Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <router-link to="orders-stats" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
-            <h3 class="text-4xl font-bold text-purple-500 mb-2">153</h3>
-            <p class="text-gray-500 mb-4">Total Order</p>
-            <button class="w-full mt-4 bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
-              All Orders
-            </button>
-          </router-link>
+            <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
+              <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Tbrands }}</h3>
+              <p class="text-gray-500 text-sm"><b>Active Cupon</b></p>
+            </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-            <div class="col-span-2 bg-white p-6 rounded-lg shadow-sm">
-              <h3 class="font-semibold mb-4">
-                Sales Distribution for This Month
-              </h3>
-              <canvas ref="chartCanvas"></canvas>
+            <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col items-center justify-center">
+              <h3 class="text-4xl font-bold mb-1 overflow-auto">{{ Storestats.Torder }}</h3>
+              <p class="text-gray-500 text-sm"><b>Total Orders</b></p>
+            </div>
+          </div>
 
-              <div class="mt-4">
-                <p>
-                  <strong>Total Sales for This Month:</strong> ${{ thisMonthTotal }}
-                </p>
-                <p>
-                  <strong>Total Sales for Previous Month:</strong> ${{ previousMonthTotal }}
-                  <p>{{ thisMonthSales  }} {{  previousMonthSales }}</p>
-                </p>
+          <!-- Categories and Brands Section -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 ">
+            <router-link to="/categories" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
+              <h3 class="font-semibold mb-4">Top Category</h3>
+              <div class="space-y-3 overflow-auto">
+                <div v-for="category in categories" :key="category.name" class="flex justify-between">
+                  <span>{{ category.name }}</span>
+                  <span>${{ category.value.toLocaleString() }}</span>
+                </div>
+              </div>
+            </router-link>
+
+            <router-link to="/brands" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
+              <h3 class="font-semibold mb-4">Top Brands</h3>
+              <div class="space-y-3 overflow-auto">
+                <div v-for="brand in brands" :key="brand.name" class="flex justify-between">
+                  <span>{{ brand.name }}</span>
+                  <span>${{ brand.value.toLocaleString() }}</span>
+                </div>
+              </div>
+            </router-link>
+          </div>
+
+          <!-- Orders Stats -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <router-link to="orders-stats" class="bg-white p-6 rounded-lg shadow-sm cursor-pointer">
+              <h3 class="text-4xl font-bold text-purple-500 mb-2">153</h3>
+              <p class="text-gray-500 mb-4">Total Order</p>
+              <button class="w-full mt-4 bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
+                All Orders
+              </button>
+            </router-link>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              <div class="col-span-2 bg-white p-6 rounded-lg shadow-sm">
+                <h3 class="font-semibold mb-4">
+                  Sales Distribution for This Month
+                </h3>
+                <canvas ref="chartCanvas"></canvas>
+
+                <div class="mt-4">
+                  <p>
+                    <strong>Total Sales for This Month:</strong> ${{ formatNumber(thisMonthTotal) }}
+                  </p>
+                  <p>
+                    <strong>Total Sales for Previous Month:</strong> ${{ formatNumber(previousMonthTotal) }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -139,16 +102,15 @@
       </main>
     </div>
   </div>
- 
 </template>
 
-
-
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import Chart from "chart.js/auto";
+import Sidebar from './Sidebar.vue';  // Import the Sidebar component
 import { useStateStore } from '@/stores/useDataStore';
+
 /*
 definePageMeta({
   middleware: 'auth'
@@ -184,7 +146,7 @@ const loadSalesData = () => {
 // On component mount, load and store the data
 onMounted(() => {
   const salesData = loadSalesData();
-  
+
   if (salesData) {
     const thisMonth = salesData.thisMonth || {};
     const previousMonth = salesData.previousMonth || {};
@@ -200,7 +162,7 @@ onMounted(() => {
 });
 
 const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard", active: true },
+  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   { name: "Products", path: "/products", icon: "Package" },
   { name: "Orders", path: "/orders", icon: "ShoppingCart" },
   { name: "Customers", path: "/customers", icon: "Package" },
@@ -210,17 +172,12 @@ const menuItems = [
   { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
   { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
   { name: "Billing", path: "/billing", icon: "BarChart" },
+  { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
 ];
 
 // Initialize shop as a reactive object
-const shop = ref({ logo: null });
+const shop = ref({ logo: null, name: null });
 const shopUrl = ref("");
-
-// Reactive search query
-const searchQuery = ref("");
-const filteredMenuItems = computed(() => {
-  return menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
-});
 
 onMounted(() => {
   // Load shop data from localStorage
@@ -277,4 +234,13 @@ onMounted(() => {
     });
   }
 });
+
+const formatNumber = (value) => value.toFixed(2);
 </script>
+
+<style scoped>
+/* Scoped Styles for Dashboard component */
+.container {
+  max-width: 1200px;
+}
+</style>
