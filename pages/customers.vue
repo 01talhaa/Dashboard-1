@@ -385,7 +385,7 @@ const fetchCustomers = async (page = 1) => {
   error.value = null;
   try {
     const token = getToken();
-    const response = await fetch(`https://apexdrive365.com/api/users?page=${page}&limit=${itemsPerPage.value}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users?page=${page}&limit=${itemsPerPage.value}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
@@ -508,8 +508,8 @@ const saveCustomer = async () => {
   try {
     const token = getToken();
     const apiUrl = editingCustomer.value
-      ? `https://apexdrive365.com/api/users/${editingCustomer.value.id}`
-      : 'https://apexdrive365.com/api/users';
+      ? `${import.meta.env.VITE_API_BASE_URL}/users/${editingCustomer.value.id}`
+      : '${import.meta.env.VITE_API_BASE_URL}/users';
 
     let formattedPhone = modalCustomer.value.phone || '';
     formattedPhone = formattedPhone.replace(/[^\d+]/g, '');
@@ -589,7 +589,7 @@ const performSearch = async () => {
   try {
     const token = getToken();
     const response = await fetch(
-      `https://apexdrive365.com/api/users?where=${searchColumn.value},${customerSearchQuery.value.trim()}&page=${currentPage.value}&limit=${itemsPerPage.value}`,
+      `${import.meta.env.VITE_API_BASE_URL}/users?where=${searchColumn.value},${customerSearchQuery.value.trim()}&page=${currentPage.value}&limit=${itemsPerPage.value}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
