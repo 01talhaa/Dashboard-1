@@ -200,18 +200,20 @@ const toastStatus = ref('');
 
 // Menu configuration
 const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
-  { name: "Products", path: "/products", icon: "Package" },
-  { name: "Orders", path: "/orders", icon: "ShoppingCart" },
+  // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
+  // { name: "Products", path: "/products", icon: "Package" },
+  // { name: "Orders", path: "/orders", icon: "ShoppingCart" },
   { name: "Customers", path: "/customers", icon: "Package" },
-  { name: "Reports", path: "/reports", icon: "BarChart" },
-  { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-  { name: "Cupon", path: "/cupon", icon: "BarChart" },
-  { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
+  // { name: "Reports", path: "/reports", icon: "BarChart" },
+  // { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
+  // { name: "Cupon", path: "/cupon", icon: "BarChart" },
+  // { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
   { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
+  { name: "Leaderboard", path: "/leaderboard", icon: "BarChart" },
   { name: "Billing", path: "/billing", icon: "BarChart" },
   { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
 ];
+
 
 const toastClass = computed(() => ({
   'bg-green-600 ring-1 ring-green-500/10': toastStatus.value === 'success' || toastStatus.value === 'paid',
