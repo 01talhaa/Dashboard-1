@@ -297,15 +297,16 @@ import { debounce } from 'lodash-es';
 
 // Menu items definition
 const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
-  { name: "Products", path: "/products", icon: "Package" },
-  { name: "Orders", path: "/orders", icon: "ShoppingCart" },
+  // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
+  // { name: "Products", path: "/products", icon: "Package" },
+  // { name: "Orders", path: "/orders", icon: "ShoppingCart" },
   { name: "Customers", path: "/customers", icon: "Package" },
-  { name: "Reports", path: "/reports", icon: "BarChart" },
-  { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-  { name: "Cupon", path: "/cupon", icon: "BarChart" },
-  { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
+  // { name: "Reports", path: "/reports", icon: "BarChart" },
+  // { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
+  // { name: "Cupon", path: "/cupon", icon: "BarChart" },
+  // { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
   { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
+  { name: "Leaderboard", path: "/leaderboard", icon: "BarChart" },
   { name: "Billing", path: "/billing", icon: "BarChart" },
   { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
 ];
@@ -385,7 +386,7 @@ const fetchCustomers = async (page = 1) => {
   error.value = null;
   try {
     const token = getToken();
-    const response = await fetch(`https://apexdrive365.com/api/users?page=${page}&limit=${itemsPerPage.value}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users?page=${page}&limit=${itemsPerPage.value}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
@@ -508,8 +509,8 @@ const saveCustomer = async () => {
   try {
     const token = getToken();
     const apiUrl = editingCustomer.value
-      ? `https://apexdrive365.com/api/users/${editingCustomer.value.id}`
-      : 'https://apexdrive365.com/api/users';
+      ? `${import.meta.env.VITE_API_BASE_URL}/users/${editingCustomer.value.id}`
+      : '${import.meta.env.VITE_API_BASE_URL}/users';
 
     let formattedPhone = modalCustomer.value.phone || '';
     formattedPhone = formattedPhone.replace(/[^\d+]/g, '');
@@ -589,7 +590,7 @@ const performSearch = async () => {
   try {
     const token = getToken();
     const response = await fetch(
-      `https://apexdrive365.com/api/users?where=${searchColumn.value},${customerSearchQuery.value.trim()}&page=${currentPage.value}&limit=${itemsPerPage.value}`,
+      `${import.meta.env.VITE_API_BASE_URL}/users?where=${searchColumn.value},${customerSearchQuery.value.trim()}&page=${currentPage.value}&limit=${itemsPerPage.value}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
