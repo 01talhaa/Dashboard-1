@@ -203,15 +203,22 @@ const menuItems = [
   // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   // { name: "Products", path: "/products", icon: "Package" },
   // { name: "Orders", path: "/orders", icon: "ShoppingCart" },
-  { name: "Customers", path: "/customers", icon: "Package" },
+  { name: "Customers", path: "/customers", icon: "Users" },
   // { name: "Reports", path: "/reports", icon: "BarChart" },
-  // { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-  // { name: "Cupon", path: "/cupon", icon: "BarChart" },
-  // { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
-  { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
-  { name: "Leaderboard", path: "/leaderboard", icon: "BarChart" },
-  { name: "Billing", path: "/billing", icon: "BarChart" },
-  { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
+  // { name: "Manage Shop", path: "/manageShop", icon: "Settings" },
+  // { name: "Cupon", path: "/cupon", icon: "Tag" },
+  // { name: "Invoicing", path: "/invoicing", icon: "FileText" },
+  { name: "Lucky Spin", path: "/luckyspin", icon: "Award" },
+  { name: "Leaderboard", path: "/leaderboard", icon: "Trophy" },
+  { name: "Billing", path: "/billing", icon: "CreditCard" },
+  { 
+    name: "Transaction ID", 
+    path: "/transaction-id", 
+    icon: "DollarSign",
+    subMenu: [
+      { name: "User Transactions", path: "/user-transactions", icon: "FileText" }
+    ]
+  },
 ];
 
 
