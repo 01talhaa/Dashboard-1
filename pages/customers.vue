@@ -81,28 +81,54 @@
 
           <!-- Customer Table -->
           <div class="overflow-x-auto bg-white rounded-lg shadow-md" v-if="!loading && !error && customers.length > 0">
-            <table class="min-w-full table-auto">
-              <thead>
-                <tr class="bg-gray-100 text-left">
-                  <th class="px-4 py-2">Name</th>
-                  <th class="px-4 py-2">Phone</th>
-                  <th class="px-4 py-2">NID</th>
-                  <th class="px-4 py-2">Address</th>
-                  <!-- <th class="px-4 py-2">Wallet Balance</th> -->
-                  <th class="px-4 py-2">Edit</th>
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Phone
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    NID
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Address
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="bg-white divide-y divide-gray-200">
                 <tr v-for="customer in paginatedCustomers" :key="customer.id"
                   :class="{ 'bg-red-100': customer.status === 'blocked', 'bg-yellow-100': customer.status === 'suspicious' }">
-                  <td class="px-4 py-2">{{ customer.name }}</td>
-                  <td class="px-4 py-2">{{ customer.phone }}</td>
-                  <td class="px-4 py-2">{{ customer.nid }}</td>
-                  <td class="px-4 py-2">{{ customer.address }}</td>
-                  <!-- <td class="px-4 py-2">{{ (customer.balance) }}</td> -->
-                  <td class="px-4 py-2">
-                    <button @click="openEditModal(customer)" class="text-blue-500 hover:text-blue-700">
-                      Edit
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                          {{ customer.name.charAt(0).toUpperCase() }}
+                        </div>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
+                        <div class="text-xs text-gray-500" v-if="customer.created_at">Created: {{ formatDate(customer.created_at) }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ customer.phone || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ customer.nid || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ customer.address || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button @click="openEditModal(customer)" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <span>Edit</span>
                     </button>
                   </td>
                 </tr>
@@ -164,7 +190,7 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all">
           <!-- Modal Header -->
           <div
-            class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+            class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
             <h2 class="text-2xl font-bold">
               {{ editingCustomer ? 'Edit Customer' : 'Create New Customer' }}
             </h2>
@@ -275,7 +301,7 @@
               Cancel
             </button>
             <button @click="saveCustomer"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+              class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center">
               <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor"
@@ -300,15 +326,22 @@ const menuItems = [
   // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   // { name: "Products", path: "/products", icon: "Package" },
   // { name: "Orders", path: "/orders", icon: "ShoppingCart" },
-  { name: "Customers", path: "/customers", icon: "Package" },
+  { name: "Customers", path: "/customers", icon: "Users" },
   // { name: "Reports", path: "/reports", icon: "BarChart" },
-  // { name: "Manage Shop", path: "/manageShop", icon: "BarChart" },
-  // { name: "Cupon", path: "/cupon", icon: "BarChart" },
-  // { name: "Invoicing", path: "/invoicing", icon: "BarChart" },
-  { name: "Lucky Spin", path: "/luckyspin", icon: "BarChart" },
-  { name: "Leaderboard", path: "/leaderboard", icon: "BarChart" },
-  { name: "Billing", path: "/billing", icon: "BarChart" },
-  { name: "Transaction ID", path: "/transaction-id", icon: "BarChart" },
+  // { name: "Manage Shop", path: "/manageShop", icon: "Settings" },
+  // { name: "Cupon", path: "/cupon", icon: "Tag" },
+  // { name: "Invoicing", path: "/invoicing", icon: "FileText" },
+  { name: "Lucky Spin", path: "/luckyspin", icon: "Award" },
+  { name: "Leaderboard", path: "/leaderboard", icon: "Trophy" },
+  { name: "Billing", path: "/billing", icon: "CreditCard" },
+  { 
+    name: "Transaction ID", 
+    path: "/transaction-id", 
+    icon: "DollarSign",
+    subMenu: [
+      { name: "User Transactions", path: "/user-transactions", icon: "FileText" }
+    ]
+  },
 ];
 
 // Add token handling function
@@ -635,6 +668,27 @@ const clearSearch = async () => {
 watch(customerSearchQuery, () => {
   debouncedSearch();
 });
+
+// Add this formatDate function if it doesn't exist
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  
+  try {
+    // Try to parse the date string and format it
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (e) {
+    // If parsing fails, return the original string
+    return dateString;
+  }
+};
+
 import Sidebar from './Sidebar.vue';
 </script>
 
@@ -703,11 +757,11 @@ select:focus {
 }
 
 .input-style {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors;
 }
 
 .select-style {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-colors;
 }
 
 .modal-enter-active,

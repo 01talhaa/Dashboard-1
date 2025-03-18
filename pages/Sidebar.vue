@@ -35,13 +35,75 @@
 
       <!-- Menu Items -->
       <nav class="mt-4 sm:mt-6 mb-16"> <!-- Add bottom margin to prevent overlap -->
-        <template v-for="(item, index) in filteredMenuItems" :key="index">
-          <router-link :to="item.path"
-            class="flex items-center px-3 sm:px-5 py-2 sm:py-3 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-200 rounded-md mx-2 mb-1">
-            <component :is="item.icon" class="w-5 h-5" />
-            <span class="ml-3 text-sm font-medium">{{ item.name }}</span>
+        <!-- Remove this outer template that was creating duplicates -->
+        <div v-for="item in filteredMenuItems" :key="item.name" class="mb-1">
+          <!-- If item has subMenu, make it a dropdown -->
+          <div v-if="item.subMenu" class="relative">
+            <!-- Main menu item with separate click handlers -->
+            <div class="flex items-center w-full">
+              <!-- Link part (takes up most of the button) -->
+              <router-link 
+                :to="item.path"
+                class="flex items-center flex-grow px-3 py-2 text-left text-gray-300 hover:bg-slate-700 rounded-md"
+                :class="{ 'bg-slate-700 text-white': isActiveRoute(item.path) }"
+              >
+                <span class="mr-2">
+                  <component :is="getIconComponent(item.icon)" class="h-5 w-5" />
+                </span>
+                <span class="flex-1">{{ item.name }}</span>
+              </router-link>
+              
+              <!-- Dropdown toggle button (separate clickable area) -->
+              <button 
+                @click="toggleSubMenu(item)"
+                class="px-2 py-2 text-gray-300 hover:bg-slate-700 rounded-r-md"
+              >
+                <svg 
+                  class="h-5 w-5 transform transition-transform duration-200" 
+                  :class="{ 'rotate-180': openSubMenus[item.name] }"
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 20 20" 
+                  fill="currentColor"
+                >
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Submenu items -->
+            <div 
+              v-show="openSubMenus[item.name]"
+              class="pl-6 mt-1 space-y-1 overflow-hidden transition-all duration-300"
+            >
+              <router-link 
+                v-for="subItem in item.subMenu" 
+                :key="subItem.path" 
+                :to="subItem.path"
+                class="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-slate-700 rounded-md"
+                :class="{ 'bg-slate-600 text-white': isActiveRoute(subItem.path) }"
+              >
+                <span class="mr-2">
+                  <component :is="getIconComponent(subItem.icon)" class="h-4 w-4" />
+                </span>
+                {{ subItem.name }}
+              </router-link>
+            </div>
+          </div>
+          
+          <!-- Regular menu item (without submenu) -->
+          <router-link 
+            v-else 
+            :to="item.path" 
+            class="flex items-center px-3 py-2 text-gray-300 hover:bg-slate-700 rounded-md"
+            :class="{ 'bg-slate-700 text-white': isActiveRoute(item.path) }"
+          >
+            <span class="mr-2">
+              <!-- Dynamic icon rendering based on icon name -->
+              <component :is="getIconComponent(item.icon)" class="h-5 w-5" />
+            </span>
+            {{ item.name }}
           </router-link>
-        </template>
+        </div>
       </nav>
     </div>
 
@@ -61,9 +123,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, h } from 'vue';
+import { useRoute } from 'vue-router';
 
-// Props
+// Props - only define once!
 const props = defineProps({
   shop: {
     type: Object,
@@ -88,5 +151,169 @@ const filteredMenuItems = computed(() => {
 const handleLogout = () => {
   localStorage.removeItem('token');
   window.location.href = '/';
+};
+
+// Add these to your script
+const route = useRoute();
+const openSubMenus = ref({});
+
+// Toggle submenu open/closed
+const toggleSubMenu = (item) => {
+  openSubMenus.value[item.name] = !openSubMenus.value[item.name];
+};
+
+// Check if route is active
+const isActiveRoute = (path) => {
+  return route.path === path;
+};
+
+// Function to get icon component
+const getIconComponent = (iconName) => {
+  // Return the appropriate icon SVG based on iconName
+  switch (iconName) {
+    case 'Users':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('path', { d: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2' }),
+            h('circle', { cx: '9', cy: '7', r: '4' }),
+            h('path', { d: 'M23 21v-2a4 4 0 0 0-3-3.87' }),
+            h('path', { d: 'M16 3.13a4 4 0 0 1 0 7.75' })
+          ]);
+        }
+      };
+    case 'Award':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('circle', { cx: '12', cy: '8', r: '7' }),
+            h('polyline', { points: '8.21 13.89 7 23 12 20 17 23 15.79 13.88' })
+          ]);
+        }
+      };
+    case 'Trophy':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('path', { d: 'M6 9H4.5a2.5 2.5 0 0 1 0-5H6' }),
+            h('path', { d: 'M18 9h1.5a2.5 2.5 0 0 0 0-5H18' }),
+            h('path', { d: 'M4 22h16' }),
+            h('path', { d: 'M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22' }),
+            h('path', { d: 'M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22' }),
+            h('path', { d: 'M18 2H6v7a6 6 0 0 0 12 0V2Z' })
+          ]);
+        }
+      };
+    case 'CreditCard':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('rect', { x: '1', y: '4', width: '22', height: '16', rx: '2', ry: '2' }),
+            h('line', { x1: '1', y1: '10', x2: '23', y2: '10' })
+          ]);
+        }
+      };
+    case 'DollarSign':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('line', { x1: '12', y1: '1', x2: '12', y2: '23' }),
+            h('path', { d: 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' })
+          ]);
+        }
+      };
+    case 'FileText':
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('path', { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' }),
+            h('polyline', { points: '14 2 14 8 20 8' }),
+            h('line', { x1: '16', y1: '13', x2: '8', y2: '13' }),
+            h('line', { x1: '16', y1: '17', x2: '8', y2: '17' }),
+            h('polyline', { points: '10 9 9 9 8 9' })
+          ]);
+        }
+      };
+    // Add more icon cases here as needed
+    default:
+      // Default icon for any undefined icon names
+      return {
+        render() {
+          return h('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            width: '24',
+            height: '24',
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: 'currentColor',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+          }, [
+            h('circle', { cx: '12', cy: '12', r: '10' })
+          ]);
+        }
+      };
+  }
 };
 </script>
