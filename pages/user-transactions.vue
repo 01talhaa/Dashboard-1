@@ -739,7 +739,7 @@ import Sidebar from "./Sidebar.vue";
 // Base URL for the API
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://api.example.com";
 
-// Menu items definition (same as in customers.vue)
+// Menu items definition
 const menuItems = [
   // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   // { name: "Products", path: "/products", icon: "Package" },
@@ -752,19 +752,16 @@ const menuItems = [
   { name: "Lucky Spin", path: "/luckyspin", icon: "Award" },
   { name: "Leaderboard", path: "/leaderboard", icon: "Trophy" },
   { name: "Billing", path: "/billing", icon: "CreditCard" },
-  {
-    name: "Transaction ID",
-    path: "/transaction-id",
+  { 
+    name: "Transactions", 
     icon: "DollarSign",
     subMenu: [
-      {
-        name: "User Transactions",
-        path: "/user-transactions",
-        icon: "FileText",
-      },
-    ],
+      { name: "Transaction ID", path: "/transaction-id", icon: "CreditCard" },
+      { name: "User Transactions", path: "/user-transactions", icon: "FileText" }
+    ]
   },
 ];
+// ...existing code...
 
 // Shop data
 const shop = ref({

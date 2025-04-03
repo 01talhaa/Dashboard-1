@@ -203,6 +203,7 @@ const totalPages = computed(() =>
   Math.ceil(filteredLeaderboard.value.length / itemsPerPage.value)
 );
 
+// Menu items definition
 const menuItems = [
   // { name: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
   // { name: "Products", path: "/products", icon: "Package" },
@@ -216,15 +217,15 @@ const menuItems = [
   { name: "Leaderboard", path: "/leaderboard", icon: "Trophy" },
   { name: "Billing", path: "/billing", icon: "CreditCard" },
   { 
-    name: "Transaction ID", 
-    path: "/transaction-id", 
+    name: "Transactions", 
     icon: "DollarSign",
     subMenu: [
+      { name: "Transaction ID", path: "/transaction-id", icon: "CreditCard" },
       { name: "User Transactions", path: "/user-transactions", icon: "FileText" }
     ]
   },
 ];
-
+// ...existing code...
 
 // Update the fetchLeaderboard function with better error handling
 const fetchLeaderboard = async () => {

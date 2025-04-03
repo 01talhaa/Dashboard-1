@@ -39,12 +39,25 @@
         <div v-for="item in filteredMenuItems" :key="item.name" class="mb-1">
           <!-- If item has subMenu, make it a dropdown -->
           <div v-if="item.subMenu" class="relative">
-            <!-- Main menu item with separate click handlers -->
+            <!-- Main menu item with dropdown only (no direct navigation) -->
             <div class="flex items-center w-full">
-              <!-- Link part (takes up most of the button) -->
+              <!-- For transaction parent, we'll show only as a dropdown header -->
+              <div 
+                v-if="item.name === 'Transactions'"
+                class="flex items-center flex-grow px-3 py-2 text-left text-gray-300 hover:bg-slate-700 rounded-l-md"
+                :class="{ 'bg-slate-700 text-white': isTransactionActive() }"
+              >
+                <span class="mr-2">
+                  <component :is="getIconComponent(item.icon)" class="h-5 w-5" />
+                </span>
+                <span class="flex-1">{{ item.name }}</span>
+              </div>
+              
+              <!-- For other items with submenus, keep the existing router-link -->
               <router-link 
+                v-else
                 :to="item.path"
-                class="flex items-center flex-grow px-3 py-2 text-left text-gray-300 hover:bg-slate-700 rounded-md"
+                class="flex items-center flex-grow px-3 py-2 text-left text-gray-300 hover:bg-slate-700 rounded-l-md"
                 :class="{ 'bg-slate-700 text-white': isActiveRoute(item.path) }"
               >
                 <span class="mr-2">
@@ -53,7 +66,7 @@
                 <span class="flex-1">{{ item.name }}</span>
               </router-link>
               
-              <!-- Dropdown toggle button (separate clickable area) -->
+              <!-- Dropdown toggle button -->
               <button 
                 @click="toggleSubMenu(item)"
                 class="px-2 py-2 text-gray-300 hover:bg-slate-700 rounded-r-md"
@@ -165,6 +178,12 @@ const toggleSubMenu = (item) => {
 // Check if route is active
 const isActiveRoute = (path) => {
   return route.path === path;
+};
+
+// Check if any transaction route is active
+const isTransactionActive = () => {
+  // This checks if the current route is any of the transaction-related routes
+  return route.path.includes('/transactions/') || route.path.includes('/user-transactions/');
 };
 
 // Function to get icon component

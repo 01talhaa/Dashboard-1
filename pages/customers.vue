@@ -335,14 +335,15 @@ const menuItems = [
   { name: "Leaderboard", path: "/leaderboard", icon: "Trophy" },
   { name: "Billing", path: "/billing", icon: "CreditCard" },
   { 
-    name: "Transaction ID", 
-    path: "/transaction-id", 
+    name: "Transactions", 
     icon: "DollarSign",
     subMenu: [
+      { name: "Transaction ID", path: "/transaction-id", icon: "CreditCard" },
       { name: "User Transactions", path: "/user-transactions", icon: "FileText" }
     ]
   },
 ];
+// ...existing code...
 
 // Add token handling function
 const getToken = () => {
